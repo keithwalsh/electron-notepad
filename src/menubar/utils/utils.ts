@@ -27,12 +27,20 @@ function hasShortcutAndAction(item: MenuItems): item is MenuItemAction & { short
 export const useMenuHotkeys = (config: MenuConfig[]) => {
     const shortcutToAction = useMemo(() => {
         const map = new Map<string, () => void>();
-        config.forEach((menu) => {
-            menu.items.forEach((item) => {
+
+        const collectFromItems = (items: MenuItems[]) => {
+            items.forEach((item) => {
                 if (hasShortcutAndAction(item)) {
-                    map.set(item.shortcut, item.action);
+                    // Replace 'Plus' with '=' because react-hotkeys-hook expects '=' for the plus key (e.g., 'Ctrl+Plus' should be 'Ctrl+=')
+                    map.set(item.shortcut.replace(/Plus/g, "="), item.action);
+                } else if ((item as any).kind === "submenu" && Array.isArray((item as any).items)) {
+                    collectFromItems((item as any).items as MenuItems[]);
                 }
             });
+        };
+
+        config.forEach((menu) => {
+            collectFromItems(menu.items);
         });
         return map;
     }, [config]);

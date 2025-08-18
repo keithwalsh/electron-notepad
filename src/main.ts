@@ -28,6 +28,14 @@ async function createMainWindow() {
     return { action: 'deny' };
   });
 
+  // Notify renderer when DevTools open/close state changes
+  mainWindow.webContents.on('devtools-opened', () => {
+    mainWindow?.webContents.send('devtools-state-changed', true);
+  });
+  mainWindow.webContents.on('devtools-closed', () => {
+    mainWindow?.webContents.send('devtools-state-changed', false);
+  });
+
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     mainWindow.webContents.openDevTools();
@@ -88,6 +96,13 @@ ipcMain.handle('window:toggle-devtools', () => {
       mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
   }
+});
+
+ipcMain.handle('window:is-devtools-open', () => {
+  if (mainWindow) {
+    return mainWindow.webContents.isDevToolsOpened();
+  }
+  return false;
 });
 
 ipcMain.handle('window:force-reload', () => {

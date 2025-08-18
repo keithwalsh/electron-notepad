@@ -5,6 +5,8 @@ export interface IElectronAPI {
   reload: () => Promise<void>;
   forceReload: () => Promise<void>;
   toggleDevTools: () => Promise<void>;
+  isDevToolsOpen: () => Promise<boolean>;
+  onDevToolsStateChanged: (callback: (open: boolean) => void) => () => void;
   toggleFullscreen: () => Promise<void>;
   zoomReset: () => Promise<void>;
   zoomIn: () => Promise<void>;

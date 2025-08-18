@@ -6,6 +6,7 @@
 
 import React from "react";
 import { Button, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { usePopupState } from "material-ui-popup-state/hooks";
 import { RootMenu } from "./RootMenu";
 import { MenuConfig } from "../types";
@@ -93,7 +94,12 @@ const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableR
 				disabled={menu.disabled}
 				disableRipple={disableRipple}
 			>
-				<Typography variant="body2" color="text.secondary">{menu.label}</Typography>
+				<Typography
+					variant="body2"
+					sx={{ color: (theme) => alpha(theme.palette.text.secondary, 0.9) }}
+				>
+					{menu.label}
+				</Typography>
 			</Button>
 			<RootMenu
 				menuItems={menu.items}

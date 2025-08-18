@@ -10,6 +10,7 @@ import { usePopupState, bindHover, bindTrigger } from "material-ui-popup-state/h
 import { MenuItemSubmenu } from "../types";
 import { CascadingContext, renderListItemIcon } from "./CascadingShared";
 import { SubMenu } from "./SubMenu";
+import { alpha } from "@mui/material/styles";
 
 export interface CascadingSubmenuProps extends MenuItemSubmenu {
     popupId: string;
@@ -44,7 +45,7 @@ const CascadingSubmenuComponent: React.FC<CascadingSubmenuProps> = ({
                 >
                     {icon && renderListItemIcon(icon, { mr: -4.5 })}
                     <ListItemText inset sx={{ px: 0 }}>
-                        <Typography variant="body2" sx={{ color: "text.secondary" }}>{label}</Typography>   
+                        <Typography variant="body2" sx={{ color: (theme) => alpha(theme.palette.text.secondary, 0.9) }}>{label}</Typography>   
                     </ListItemText>
                     <ChevronRight sx={{
                         ml: 4,
@@ -58,7 +59,7 @@ const CascadingSubmenuComponent: React.FC<CascadingSubmenuProps> = ({
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "left" }}
                 popupState={popupState}
-                disableRipple={disableRipple}
+                disableRipple
                 useHover={useHover}
             />
         </React.Fragment>

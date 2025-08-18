@@ -23,6 +23,12 @@ async function createMainWindow() {
     electron.shell.openExternal(url2);
     return { action: "deny" };
   });
+  mainWindow.webContents.on("devtools-opened", () => {
+    mainWindow?.webContents.send("devtools-state-changed", true);
+  });
+  mainWindow.webContents.on("devtools-closed", () => {
+    mainWindow?.webContents.send("devtools-state-changed", false);
+  });
   {
     await mainWindow.loadURL("http://localhost:5173");
     mainWindow.webContents.openDevTools();
@@ -71,6 +77,12 @@ electron.ipcMain.handle("window:toggle-devtools", () => {
       mainWindow.webContents.openDevTools({ mode: "detach" });
     }
   }
+});
+electron.ipcMain.handle("window:is-devtools-open", () => {
+  if (mainWindow) {
+    return mainWindow.webContents.isDevToolsOpened();
+  }
+  return false;
 });
 electron.ipcMain.handle("window:force-reload", () => {
   if (mainWindow) {

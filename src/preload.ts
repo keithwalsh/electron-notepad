@@ -11,6 +11,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   reload: () => ipcRenderer.invoke('window:reload'),
   forceReload: () => ipcRenderer.invoke('window:force-reload'),
   toggleDevTools: () => ipcRenderer.invoke('window:toggle-devtools'),
+  isDevToolsOpen: () => ipcRenderer.invoke('window:is-devtools-open') as Promise<boolean>,
+  onDevToolsStateChanged: (callback: (open: boolean) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, open: boolean) => callback(open);
+    ipcRenderer.on('devtools-state-changed', listener);
+    return () => ipcRenderer.removeListener('devtools-state-changed', listener);
+  },
   toggleFullscreen: () => ipcRenderer.invoke('window:toggle-fullscreen'),
   zoomReset: () => ipcRenderer.invoke('window:zoom-reset'),
   zoomIn: () => ipcRenderer.invoke('window:zoom-in'),
