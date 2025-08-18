@@ -4,31 +4,35 @@
  */
 
 import React, { useMemo } from "react";
-import { AppBar, createTheme, ThemeProvider, Toolbar, Box } from "@mui/material";
+import { AppBar, createTheme, ThemeProvider, Toolbar } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { MenuBarProps } from "../types";
 import { useMenuHotkeys } from "../utils";
 import { RootMenuRenderer } from "./RootMenuRenderer";
+import WindowControls from "../../renderer/components/WindowControls";
 
-// Create theme outside component to avoid recreating on every render
-const menuBarTheme = createTheme({
-    components: {
-        MuiToolbar: {
-            styleOverrides: {
-                dense: {
-                    minHeight: 0,
-                    height: 32,
-                    px: 0,
-                }
-            }
-        }
-    },
-});
-
-export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent", sx, disableRipple }) => {
+export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent", sx, disableRipple, themeMode, onToggleTheme }) => {
     const menuConfig = config;
 
     // Set up hotkeys for the menu items
     useMenuHotkeys(menuConfig);
+
+    const outerTheme = useTheme();
+    const menuBarTheme = useMemo(() => createTheme({
+        ...outerTheme,
+        components: {
+            ...outerTheme.components,
+            MuiToolbar: {
+                styleOverrides: {
+                    dense: {
+                        minHeight: 0,
+                        height: 32,
+                        px: 0,
+                    }
+                }
+            }
+        }
+    }), [outerTheme]);
 
     // Memoize the empty state to avoid recreating
     const emptyMenuBar = useMemo(() => (
@@ -56,10 +60,11 @@ export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent",
             <ThemeProvider theme={menuBarTheme}>
                 <Toolbar variant="dense" disableGutters={true} sx={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
                         <RootMenuRenderer menuConfig={menuConfig} disableRipple={disableRipple} />
+                        <WindowControls themeMode={themeMode} onToggleTheme={onToggleTheme} />
                 </Toolbar>
             </ThemeProvider>
         </AppBar>
     );
-};
+}
 
 export default MenuBar;

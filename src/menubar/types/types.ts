@@ -56,6 +56,8 @@ export interface MenuBarProps {
     color?: AppBarProps["color"];
     sx?: SxProps<Theme>;
     disableRipple?: boolean;
+    themeMode?: 'light' | 'dark';
+    onToggleTheme?: () => void;
 }
 
 export interface CascadingMenuProps {

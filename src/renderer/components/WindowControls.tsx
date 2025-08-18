@@ -3,18 +3,30 @@ import { Box, IconButton } from '@mui/material';
 import MinimizeIcon from '@mui/icons-material/Minimize';
 import CloseIcon from '@mui/icons-material/Close';
 import { VscChromeRestore } from "react-icons/vsc";
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 
 interface WindowControlsProps {
   onMinimize?: () => void;
   onRestore?: () => void;
   onClose?: () => void;
+  themeMode?: 'light' | 'dark';
+  onToggleTheme?: () => void;
 }
 
 export const WindowControls: React.FC<WindowControlsProps> = ({
   onMinimize,
   onRestore,
-  onClose
+  onClose,
+  themeMode,
+  onToggleTheme
 }) => {
+  const handleToggleTheme = () => {
+    if (onToggleTheme) {
+      onToggleTheme();
+    }
+  };
+
   const handleMinimize = () => {
     if (onMinimize) {
       onMinimize();
@@ -48,14 +60,28 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
     }}>
       <IconButton
         size="small"
+        onClick={handleToggleTheme}
+        sx={{
+          borderRadius: 0,
+          width: 46,
+          height: 32,
+        }}
+        aria-label="toggle-theme"
+      >
+        {themeMode === 'dark' ? (
+          <LightModeIcon fontSize="small" />
+        ) : (
+          <DarkModeIcon fontSize="small" />
+        )}
+      </IconButton>
+
+      <IconButton
+        size="small"
         onClick={handleMinimize}
         sx={{
           borderRadius: 0,
           width: 46,
           height: 32,
-          '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)'
-          }
         }}
         aria-label="minimize"
       >
@@ -69,9 +95,6 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
           borderRadius: 0,
           width: 46,
           height: 32,
-          '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)'
-          }
         }}
         aria-label="restore"
       >
@@ -85,10 +108,6 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
           borderRadius: 0,
           width: 46,
           height: 32,
-          '&:hover': {
-            backgroundColor: 'rgba(220, 53, 69, 0.1)',
-            color: '#dc3545'
-          }
         }}
         aria-label="close"
       >
