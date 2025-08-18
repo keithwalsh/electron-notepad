@@ -7,10 +7,10 @@ import React from "react";
 import { Box, MenuItem } from "@mui/material";
 import { MenuItemCustom } from "../types";
 
-const KindCustomItemComponent: React.FC<MenuItemCustom & { disableRipple?: boolean }> = ({ disableRipple, ...item }) => {
+const KindCustomItemComponent: React.FC<MenuItemCustom> = ({ ...item }) => {
     return (
         <MenuItem
-            disableRipple={disableRipple}
+            disableRipple
             sx={{
                 px: 1.5,
                 '&:hover': {

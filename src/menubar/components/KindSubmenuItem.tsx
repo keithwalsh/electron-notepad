@@ -4,12 +4,12 @@
  */
 
 import React, { useContext } from "react";
-import { MenuList, MenuItem, ListItemText, dividerClasses, Typography } from "@mui/material";
+import { MenuItem, ListItemText, Typography } from "@mui/material";
 import ChevronRight from "@mui/icons-material/ChevronRight";
 import { usePopupState, bindHover, bindTrigger } from "material-ui-popup-state/hooks";
 import { MenuItemSubmenu } from "../types";
 import { CascadingContext, renderListItemIcon } from "./CascadingShared";
-import { SubMenu } from "./SubMenu";
+import { SubMenu } from "./SubMenuRenderer";
 import { alpha } from "@mui/material/styles";
 
 export interface CascadingSubmenuProps extends MenuItemSubmenu {
@@ -38,22 +38,21 @@ const CascadingSubmenuComponent: React.FC<CascadingSubmenuProps> = ({
 
     return (
         <React.Fragment>
-            <MenuList dense sx={{ m: 0.5, [`& .${dividerClasses.root}`]: { m: 0 }, "& .MuiList-padding": { paddingTop: 0, paddingBottom: 2 }, p: 0 }}>
-                <MenuItem 
-                    {...bindMenuProps(popupState)} 
-                    disableRipple={disableRipple}
-                >
-                    {icon && renderListItemIcon(icon, { mr: -4.5 })}
-                    <ListItemText inset sx={{ px: 0 }}>
-                        <Typography variant="body2" sx={{ color: (theme) => alpha(theme.palette.text.secondary, 0.9) }}>{label}</Typography>   
-                    </ListItemText>
-                    <ChevronRight sx={{
-                        ml: 4,
-                        mr: -1,
-                        color: "text.secondary"
-                    }} />
-                </MenuItem>
-            </MenuList>
+            <MenuItem 
+                {...bindMenuProps(popupState)} 
+                disableRipple={disableRipple}
+                sx={{ m: 0.5, py: 0 }}
+            >
+                {icon && renderListItemIcon(icon, { mr: -4.5 })}
+                <ListItemText inset sx={{ px: 0 }}>
+                    <Typography variant="body2" sx={{ color: (theme) => alpha(theme.palette.text.secondary, 0.9) }}>{label}</Typography>   
+                </ListItemText>
+                <ChevronRight sx={{
+                    ml: 4,
+                    mr: -1,
+                    color: (theme) => alpha(theme.palette.text.secondary, 0.9)
+                }} />
+            </MenuItem>
             <SubMenu
                 menuItems={items}
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}

@@ -8,7 +8,7 @@ export * from "../types";
 
 // Export the new specialized menu components
 export { RootMenu } from "./RootMenu";
-export { SubMenu } from "./SubMenu";
+export { SubMenu } from "./SubMenuRenderer";
 export { CascadingSubmenu } from "./KindSubmenuItem";
 
 export { CascadingMenuItem } from "./CascadingMenuItem";

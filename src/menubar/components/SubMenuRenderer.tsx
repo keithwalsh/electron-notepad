@@ -105,7 +105,6 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
                         <CascadingMenuItem
                             key={`item-${baseId}`}
                             {...item}
-                            disableRipple
                         />
                     );
                 })}

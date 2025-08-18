@@ -31,7 +31,6 @@ async function createMainWindow() {
   });
   {
     await mainWindow.loadURL("http://localhost:5173");
-    mainWindow.webContents.openDevTools();
   }
 }
 electron.app.whenReady().then(async () => {

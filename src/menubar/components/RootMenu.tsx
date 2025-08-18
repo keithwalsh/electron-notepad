@@ -56,6 +56,8 @@ export const RootMenu: React.FC<RootMenuProps> = ({
     
     const mergedTransitionSlotProps = useMemo(() => ({
         timeout: 0,
+        enter: 0,
+        exit: 0,
         ...(deprecatedTransitionProps ?? {}),
         ...(incomingSlotProps?.transition ?? {})
     }), [deprecatedTransitionProps, incomingSlotProps?.transition]);
@@ -76,6 +78,7 @@ export const RootMenu: React.FC<RootMenuProps> = ({
     const paperSx: SxProps<Theme> = useMemo(
         () => ({
             backgroundColor: "background.paper",
+            transform: 'none !important',
             "& .MuiPaper-root": {
                 backgroundColor: "background.paper",
             },
@@ -126,6 +129,7 @@ export const RootMenu: React.FC<RootMenuProps> = ({
             open={popupState.isOpen}
             anchorEl={popupState.anchorEl}
             onClose={handleClose}
+            transitionDuration={0}
             anchorOrigin={{
                 vertical: 'bottom',
                 horizontal: 'left',

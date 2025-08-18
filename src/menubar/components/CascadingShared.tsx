@@ -9,7 +9,11 @@ import { SxProps, Theme } from "@mui/material/styles";
 import { SvgIconProps } from "@mui/material";
 import { CascadingContextType } from "../types";
 
-const iconSx: SxProps<Theme> = { color: "text.secondary", ml: -0.5, mb: 0.2, fontSize: "small" };
+const iconContainerSx: SxProps<Theme> = {
+    color: "text.secondary",
+    ml: -0.5,
+    "& .MuiSvgIcon-root": { fontSize: "small" }
+};
 
 export const CascadingContext = React.createContext<CascadingContextType>({
     parentPopupState: null,
@@ -18,18 +22,8 @@ export const CascadingContext = React.createContext<CascadingContextType>({
 
 export function renderListItemIcon(icon: React.ReactNode, sx?: SxProps<Theme>) {
     return (
-        <ListItemIcon sx={sx}>
-            {React.isValidElement(icon)
-                ? (() => {
-                    const currentSx = (icon as any).props?.sx as SxProps<Theme> | undefined;
-                    const mergedSx: SxProps<Theme> = Array.isArray(currentSx)
-                        ? [iconSx, ...currentSx]
-                        : currentSx
-                            ? [iconSx, currentSx]
-                            : iconSx;
-                    return React.cloneElement(icon as React.ReactElement<SvgIconProps>, { sx: mergedSx });
-                })()
-                : icon}
+        <ListItemIcon sx={[iconContainerSx, sx] as any}>
+            {icon}
         </ListItemIcon>
     );
 }

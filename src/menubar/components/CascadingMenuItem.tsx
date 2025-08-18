@@ -9,7 +9,7 @@ import { KindDividerItem } from "./KindDividerItem";
 import { KindCustomItem } from "./KindCustomItem";
 import { KindActionItem } from "./KindActionItem";
 
-export const CascadingMenuItem: React.FC<MenuItems & { disableRipple?: boolean }> = ({ disableRipple, ...item }) => {
+export const CascadingMenuItem: React.FC<MenuItems> = ({ ...item }) => {
     const { rootPopupState, parentPopupState } = useContext(CascadingContext);
     if (!rootPopupState) throw new Error("must be used inside a RootMenu/SubMenu context");
     if (!parentPopupState) throw new Error("must have a parent popup state for submenu");
@@ -19,11 +19,11 @@ export const CascadingMenuItem: React.FC<MenuItems & { disableRipple?: boolean }
     }
 
     if (item.kind === "custom") {
-        return <KindCustomItem {...item} disableRipple={disableRipple} />;
+        return <KindCustomItem {...item}  />;
     }
 
     if (item.kind === "action") {
-        return <KindActionItem {...item} disableRipple={disableRipple} />;
+        return <KindActionItem {...item}  />;
     }
 
     return null;
