@@ -1,5 +1,6 @@
 "use strict";
 const electron = require("electron");
+const promises = require("fs/promises");
 const path = require("path");
 const url = require("url");
 var _documentCurrentScript = typeof document !== "undefined" ? document.currentScript : null;
@@ -56,5 +57,98 @@ electron.ipcMain.handle("window:close", () => {
   if (mainWindow) {
     mainWindow.close();
   }
+});
+electron.ipcMain.handle("window:reload", () => {
+  if (mainWindow) {
+    mainWindow.reload();
+  }
+});
+electron.ipcMain.handle("window:toggle-devtools", () => {
+  if (mainWindow) {
+    if (mainWindow.webContents.isDevToolsOpened()) {
+      mainWindow.webContents.closeDevTools();
+    } else {
+      mainWindow.webContents.openDevTools({ mode: "detach" });
+    }
+  }
+});
+electron.ipcMain.handle("window:force-reload", () => {
+  if (mainWindow) {
+    mainWindow.webContents.reloadIgnoringCache();
+  }
+});
+electron.ipcMain.handle("window:toggle-fullscreen", () => {
+  if (mainWindow) {
+    mainWindow.setFullScreen(!mainWindow.isFullScreen());
+  }
+});
+electron.ipcMain.handle("window:zoom-reset", () => {
+  if (mainWindow) {
+    mainWindow.webContents.setZoomFactor(1);
+  }
+});
+electron.ipcMain.handle("window:zoom-in", () => {
+  if (mainWindow) {
+    const current = mainWindow.webContents.getZoomFactor();
+    const next = Math.min(3, Math.round((current + 0.1) * 10) / 10);
+    mainWindow.webContents.setZoomFactor(next);
+  }
+});
+electron.ipcMain.handle("window:zoom-out", () => {
+  if (mainWindow) {
+    const current = mainWindow.webContents.getZoomFactor();
+    const next = Math.max(0.3, Math.round((current - 0.1) * 10) / 10);
+    mainWindow.webContents.setZoomFactor(next);
+  }
+});
+electron.ipcMain.handle("file:open", async () => {
+  if (!mainWindow) return { canceled: true };
+  const result = await electron.dialog.showOpenDialog(mainWindow, {
+    properties: ["openFile"],
+    filters: [
+      { name: "Text Files", extensions: ["txt", "md", "log"] },
+      { name: "All Files", extensions: ["*"] }
+    ]
+  });
+  if (result.canceled || result.filePaths.length === 0) {
+    return { canceled: true };
+  }
+  const path2 = result.filePaths[0];
+  const content = await promises.readFile(path2, "utf8");
+  return { canceled: false, path: path2, content };
+});
+electron.ipcMain.handle("file:save", async (_event, args) => {
+  if (!mainWindow) return { canceled: true };
+  const { path: existingPath, content } = args ?? {};
+  let targetPath = existingPath;
+  if (!targetPath) {
+    const result = await electron.dialog.showSaveDialog(mainWindow, {
+      filters: [
+        { name: "Text Files", extensions: ["txt"] },
+        { name: "All Files", extensions: ["*"] }
+      ]
+    });
+    if (result.canceled || !result.filePath) {
+      return { canceled: true };
+    }
+    targetPath = result.filePath;
+  }
+  await promises.writeFile(targetPath, content, "utf8");
+  return { canceled: false, path: targetPath };
+});
+electron.ipcMain.handle("file:save-as", async (_event, args) => {
+  if (!mainWindow) return { canceled: true };
+  const { content } = args ?? {};
+  const result = await electron.dialog.showSaveDialog(mainWindow, {
+    filters: [
+      { name: "Text Files", extensions: ["txt"] },
+      { name: "All Files", extensions: ["*"] }
+    ]
+  });
+  if (result.canceled || !result.filePath) {
+    return { canceled: true };
+  }
+  await promises.writeFile(result.filePath, content, "utf8");
+  return { canceled: false, path: result.filePath };
 });
 //# sourceMappingURL=main.cjs.map

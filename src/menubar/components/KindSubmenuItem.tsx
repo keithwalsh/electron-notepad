@@ -6,10 +6,10 @@
 import React, { useContext } from "react";
 import { MenuList, MenuItem, ListItemText, dividerClasses, Typography } from "@mui/material";
 import ChevronRight from "@mui/icons-material/ChevronRight";
-import { usePopupState, bindHover, bindFocus, bindTrigger } from "material-ui-popup-state/hooks";
+import { usePopupState, bindHover, bindTrigger } from "material-ui-popup-state/hooks";
 import { MenuItemSubmenu } from "../types";
 import { CascadingContext, renderListItemIcon } from "./CascadingShared";
-import { SubMenu } from ".";
+import { SubMenu } from "./SubMenu";
 
 export interface CascadingSubmenuProps extends MenuItemSubmenu {
     popupId: string;
@@ -40,7 +40,6 @@ const CascadingSubmenuComponent: React.FC<CascadingSubmenuProps> = ({
             <MenuList dense sx={{ m: 0.5, [`& .${dividerClasses.root}`]: { m: 0 }, "& .MuiList-padding": { paddingTop: 0, paddingBottom: 2 }, p: 0 }}>
                 <MenuItem 
                     {...bindMenuProps(popupState)} 
-                    {...bindFocus(popupState)}
                     disableRipple={disableRipple}
                 >
                     {icon && renderListItemIcon(icon, { mr: -4.5 })}

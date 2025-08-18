@@ -29,9 +29,9 @@ const KindActionItemComponent: React.FC<MenuItemAction & { disableRipple?: boole
             disableRipple={disableRipple}
         >
             {item.icon && renderListItemIcon(item.icon)}
-            <ListItemText><Typography variant="body2" sx={{ color: "text.secondary" }}>{item.label}</Typography></ListItemText>
+            <ListItemText><Typography variant="body2" sx={{ color: (theme) => alpha(theme.palette.text.secondary, 0.9) }}>{item.label}</Typography></ListItemText>
             {item.shortcut && (
-                <Typography variant="body2" sx={{ ml: 4, color: (theme) => alpha(theme.palette.text.secondary, 0.45), fontSize: '0.86rem' }}>
+                <Typography variant="body2" sx={{ ml: 4, color: (theme) => alpha(theme.palette.text.secondary, 0.6), fontSize: '0.86rem' }}>
                     {item.shortcut}
                 </Typography>
             )}

@@ -59,12 +59,17 @@ export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent",
             }}
         >
             <ThemeProvider theme={menuBarTheme}>
-                <Toolbar variant="dense" disableGutters={true} sx={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
-                    <Box sx={{ mt: '4px', mx: '10px'}}>
-                        <LuNotepadText size={18} color="inherit" />
+                <Toolbar variant="dense" disableGutters={true} sx={{ display: 'flex', width: '100%', alignItems: 'center', WebkitAppRegion: 'drag' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', height: '100%', position: 'relative', zIndex: 1, WebkitAppRegion: 'no-drag' }}>
+                        <Box sx={{ mt: '4px', mx: '10px'}}>
+                            <LuNotepadText size={18} color="inherit" />
+                        </Box>
+                        <RootMenuRenderer menuConfig={menuConfig} disableRipple={disableRipple} />
                     </Box>
-                    <RootMenuRenderer menuConfig={menuConfig} disableRipple={disableRipple} />
-                    <WindowControls themeMode={themeMode} onToggleTheme={onToggleTheme} />
+                    <Box sx={{ flexGrow: 1 }} />
+                    <Box sx={{ WebkitAppRegion: 'no-drag' }}>
+                        <WindowControls themeMode={themeMode} onToggleTheme={onToggleTheme} />
+                    </Box>
                 </Toolbar>
             </ThemeProvider>
         </AppBar>

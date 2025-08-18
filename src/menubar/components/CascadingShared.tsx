@@ -19,7 +19,17 @@ export const CascadingContext = React.createContext<CascadingContextType>({
 export function renderListItemIcon(icon: React.ReactNode, sx?: SxProps<Theme>) {
     return (
         <ListItemIcon sx={sx}>
-            {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<SvgIconProps>, { sx: iconSx }) : icon}
+            {React.isValidElement(icon)
+                ? (() => {
+                    const currentSx = (icon as any).props?.sx as SxProps<Theme> | undefined;
+                    const mergedSx: SxProps<Theme> = Array.isArray(currentSx)
+                        ? [iconSx, ...currentSx]
+                        : currentSx
+                            ? [iconSx, currentSx]
+                            : iconSx;
+                    return React.cloneElement(icon as React.ReactElement<SvgIconProps>, { sx: mergedSx });
+                })()
+                : icon}
         </ListItemIcon>
     );
 }

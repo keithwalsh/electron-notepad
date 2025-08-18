@@ -5,7 +5,7 @@
 
 import React, { useContext, useMemo } from "react";
 import HoverMenuImport from "material-ui-popup-state/HoverMenu";
-import { MenuList, MenuItem } from "@mui/material";
+import { MenuList } from "@mui/material";
 import { bindMenu } from "material-ui-popup-state/hooks";
 import { styled } from "@mui/material/styles";
 import { SxProps, Theme } from "@mui/material/styles";
@@ -66,17 +66,6 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
 }) => {
     const { rootPopupState } = useContext(CascadingContext);
     
-    const mergedTransitionSlotProps = useMemo(() => ({
-        ...(TransitionProps ?? {}),
-        ...(slotProps?.transition ?? {}),
-        timeout: 0
-    }), [TransitionProps, slotProps?.transition]);
-    
-    const incomingSlotProps = useMemo(() => ({
-        ...(slotProps ?? {}),
-        transition: mergedTransitionSlotProps
-    }), [slotProps, mergedTransitionSlotProps]);
-    
     const context = useMemo(
         () => ({
             rootPopupState: rootPopupState || popupState,
@@ -107,7 +96,7 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
                                 key={`submenu-${baseId}`}
                                 {...item}
                                 popupId={`submenu-${baseId}`}
-                                disableRipple={disableRipple}
+                                disableRipple
                                 useHover={useHover}
                             />
                         );
@@ -116,7 +105,7 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
                         <CascadingMenuItem
                             key={`item-${baseId}`}
                             {...item}
-                            disableRipple={disableRipple}
+                            disableRipple
                         />
                     );
                 })}
@@ -135,7 +124,6 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
                 ...(PaperProps ?? {}),
                 sx: paperSx,
             }}
-            slotProps={incomingSlotProps}
         >
             {menuContent}
         </StyledMenu>

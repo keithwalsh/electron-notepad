@@ -15,7 +15,7 @@ const RootMenuRendererComponent: React.FC<RootMenuRendererProps> = ({ menuConfig
         <RootMenuButtonGroup>
             <Box 
                 data-testid="menu-toolbar"
-                sx={{ display: 'flex' }}
+                sx={{ display: 'flex', WebkitAppRegion: 'no-drag' }}
             >
                 {menuConfig.map((menu: MenuConfig) => {
                     const key = menu.id ?? menu.label;
@@ -23,7 +23,7 @@ const RootMenuRendererComponent: React.FC<RootMenuRendererProps> = ({ menuConfig
                         <RootMenuButton
                             key={key}
                             menu={menu}
-                            disableRipple={disableRipple}
+                            disableRipple
                         />
                     );
                 })}

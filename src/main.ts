@@ -1,4 +1,5 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
+import { readFile, writeFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -70,6 +71,111 @@ ipcMain.handle('window:close', () => {
   if (mainWindow) {
     mainWindow.close();
   }
+});
+
+// View / Dev tools / Zoom / Fullscreen helpers
+ipcMain.handle('window:reload', () => {
+  if (mainWindow) {
+    mainWindow.reload();
+  }
+});
+
+ipcMain.handle('window:toggle-devtools', () => {
+  if (mainWindow) {
+    if (mainWindow.webContents.isDevToolsOpened()) {
+      mainWindow.webContents.closeDevTools();
+    } else {
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
+    }
+  }
+});
+
+ipcMain.handle('window:force-reload', () => {
+  if (mainWindow) {
+    mainWindow.webContents.reloadIgnoringCache();
+  }
+});
+
+ipcMain.handle('window:toggle-fullscreen', () => {
+  if (mainWindow) {
+    mainWindow.setFullScreen(!mainWindow.isFullScreen());
+  }
+});
+
+ipcMain.handle('window:zoom-reset', () => {
+  if (mainWindow) {
+    mainWindow.webContents.setZoomFactor(1);
+  }
+});
+
+ipcMain.handle('window:zoom-in', () => {
+  if (mainWindow) {
+    const current = mainWindow.webContents.getZoomFactor();
+    const next = Math.min(3, Math.round((current + 0.1) * 10) / 10);
+    mainWindow.webContents.setZoomFactor(next);
+  }
+});
+
+ipcMain.handle('window:zoom-out', () => {
+  if (mainWindow) {
+    const current = mainWindow.webContents.getZoomFactor();
+    const next = Math.max(0.3, Math.round((current - 0.1) * 10) / 10);
+    mainWindow.webContents.setZoomFactor(next);
+  }
+});
+
+// File open/save handlers
+ipcMain.handle('file:open', async () => {
+  if (!mainWindow) return { canceled: true };
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile'],
+    filters: [
+      { name: 'Text Files', extensions: ['txt', 'md', 'log'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  });
+  if (result.canceled || result.filePaths.length === 0) {
+    return { canceled: true };
+  }
+  const path = result.filePaths[0];
+  const content = await readFile(path, 'utf8');
+  return { canceled: false, path, content };
+});
+
+ipcMain.handle('file:save', async (_event, args: { path?: string; content: string }) => {
+  if (!mainWindow) return { canceled: true };
+  const { path: existingPath, content } = args ?? {};
+  let targetPath = existingPath;
+  if (!targetPath) {
+    const result = await dialog.showSaveDialog(mainWindow, {
+      filters: [
+        { name: 'Text Files', extensions: ['txt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+    if (result.canceled || !result.filePath) {
+      return { canceled: true };
+    }
+    targetPath = result.filePath;
+  }
+  await writeFile(targetPath, content, 'utf8');
+  return { canceled: false, path: targetPath };
+});
+
+ipcMain.handle('file:save-as', async (_event, args: { content: string }) => {
+  if (!mainWindow) return { canceled: true };
+  const { content } = args ?? {};
+  const result = await dialog.showSaveDialog(mainWindow, {
+    filters: [
+      { name: 'Text Files', extensions: ['txt'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  });
+  if (result.canceled || !result.filePath) {
+    return { canceled: true };
+  }
+  await writeFile(result.filePath, content, 'utf8');
+  return { canceled: false, path: result.filePath };
 });
 
 

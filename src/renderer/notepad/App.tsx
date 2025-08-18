@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { MenuBar } from '../../menubar';
-import type { MenuConfig } from '../../menubar';
+import { createMenuConfig } from './config/menuConfig';
 
 export function App(): JSX.Element {
   const [text, setText] = useState('');
@@ -30,29 +30,9 @@ export function App(): JSX.Element {
   const charCount = useMemo(() => text.length, [text]);
   const lineCount = useMemo(() => text.split(/\n/).length, [text]);
 
-  const menuConfig: MenuConfig[] = useMemo(() => [
-    {
-      label: 'File',
-      items: [
-        { kind: 'action', label: 'New', shortcut: 'ctrl+n', action: () => { setText(''); setFilePath(null); } },
-        { kind: 'action', label: 'Clear', action: () => setText('') },
-        { kind: 'divider' },
-        { kind: 'action', label: 'Exit', action: () => window.close() }
-      ]
-    },
-    {
-      label: 'Edit',
-      items: [
-        { kind: 'action', label: 'Select All', shortcut: 'ctrl+a', action: () => { try { document.execCommand?.('selectAll'); } catch {} } }
-      ]
-    },
-    {
-      label: 'Help',
-      items: [
-        { kind: 'action', label: 'About', action: () => alert('Electron Notepad') }
-      ]
-    }
-  ], []);
+  const menuConfig = useMemo(() =>
+    createMenuConfig({ text, filePath, setText, setFilePath })
+  , [text, filePath]);
 
   const theme = useMemo(() => createTheme({ palette: { mode } }), [mode]);
   const toggleTheme = () => setMode(prev => prev === 'light' ? 'dark' : 'light');

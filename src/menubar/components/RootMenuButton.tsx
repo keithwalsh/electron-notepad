@@ -85,9 +85,10 @@ const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableR
 					'&:hover': {
 						backgroundColor: popupState.isOpen ? 'action.selected' : 'action.hover',
 					},
-					px: 0,
+					px: 1.25,
 					py: 0.25,
-					minWidth: 0.7
+					minWidth: 0,
+					WebkitAppRegion: 'no-drag'
 				}}
 				disabled={menu.disabled}
 				disableRipple={disableRipple}
