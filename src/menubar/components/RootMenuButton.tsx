@@ -95,10 +95,6 @@ const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableR
 				<Typography variant="body2" color="text.secondary">{menu.label}</Typography>
 			</Button>
 			<RootMenu
-			PopoverProps={{
-				transitionDuration: 222,                 // or { enter: 222, exit: 222 }
-				slotProps: { transition: { timeout: 222 } } // optional; transitionDuration is what matters
-			  }}
 				menuItems={menu.items}
 				popupState={popupState}
 				disableRipple={disableRipple}

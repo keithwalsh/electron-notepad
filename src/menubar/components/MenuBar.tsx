@@ -4,11 +4,12 @@
  */
 
 import React, { useMemo } from "react";
-import { AppBar, createTheme, ThemeProvider, Toolbar } from "@mui/material";
+import { AppBar, Box, createTheme, ThemeProvider, Toolbar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { MenuBarProps } from "../types";
 import { useMenuHotkeys } from "../utils";
 import { RootMenuRenderer } from "./RootMenuRenderer";
+import { LuNotepadText } from "react-icons/lu";
 import WindowControls from "../../renderer/components/WindowControls";
 
 export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent", sx, disableRipple, themeMode, onToggleTheme }) => {
@@ -59,8 +60,11 @@ export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent",
         >
             <ThemeProvider theme={menuBarTheme}>
                 <Toolbar variant="dense" disableGutters={true} sx={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
-                        <RootMenuRenderer menuConfig={menuConfig} disableRipple={disableRipple} />
-                        <WindowControls themeMode={themeMode} onToggleTheme={onToggleTheme} />
+                    <Box sx={{ mt: '4px', mx: '10px'}}>
+                        <LuNotepadText size={18} color="inherit" />
+                    </Box>
+                    <RootMenuRenderer menuConfig={menuConfig} disableRipple={disableRipple} />
+                    <WindowControls themeMode={themeMode} onToggleTheme={onToggleTheme} />
                 </Toolbar>
             </ThemeProvider>
         </AppBar>
