@@ -10,7 +10,7 @@ import RootMenuButton from "./RootMenuButton";
 import { RootMenuButtonGroup } from "./RootMenuButtonGroup";
 
 
-export const RootMenuRenderer: React.FC<RootMenuRendererProps> = ({ menuConfig, disableRipple }) => {
+const RootMenuRendererComponent: React.FC<RootMenuRendererProps> = ({ menuConfig, disableRipple }) => {
     return (
         <RootMenuButtonGroup>
             <Box 
@@ -31,3 +31,5 @@ export const RootMenuRenderer: React.FC<RootMenuRendererProps> = ({ menuConfig, 
         </RootMenuButtonGroup>
     );
 };
+
+export const RootMenuRenderer = React.memo(RootMenuRendererComponent);

@@ -9,7 +9,7 @@ import { MenuItem, ListItemText, Typography, alpha } from "@mui/material";
 import { MenuItemAction } from "../types";
 import { CascadingContext, renderListItemIcon } from "./CascadingShared";
 
-export const KindActionItem: React.FC<MenuItemAction & { disableRipple?: boolean }> = ({ disableRipple, ...item }) => {
+const KindActionItemComponent: React.FC<MenuItemAction & { disableRipple?: boolean }> = ({ disableRipple, ...item }) => {
     const { rootPopupState } = useContext(CascadingContext);
 
     const handleClick = React.useCallback(
@@ -17,7 +17,7 @@ export const KindActionItem: React.FC<MenuItemAction & { disableRipple?: boolean
             rootPopupState?.close(event);
             item.action();
         },
-        [rootPopupState, item]
+        [rootPopupState, item.action]
     );
 
     return (
@@ -38,6 +38,8 @@ export const KindActionItem: React.FC<MenuItemAction & { disableRipple?: boolean
         </MenuItem>
     );
 };
+
+export const KindActionItem = React.memo(KindActionItemComponent);
 
 export default KindActionItem;
 

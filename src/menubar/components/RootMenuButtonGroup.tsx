@@ -57,26 +57,45 @@ export const RootMenuButtonGroup: React.FC<RootMenuButtonGroupProps> = ({ childr
 	React.useEffect(() => {
 		if (!isActive) return;
 
+		// Use a throttled version to reduce performance impact
+		let animationFrameId: number | null = null;
+		
 		const handleGlobalMouseMove = (event: MouseEvent) => {
-			for (const [key, buttonElement] of buttonRefs.current.entries()) {
-				if (!buttonElement) continue;
-				const rect = buttonElement.getBoundingClientRect();
-				if (
-					event.clientX >= rect.left &&
-					event.clientX <= rect.right &&
-					event.clientY >= rect.top &&
-					event.clientY <= rect.bottom
-				) {
-					if (key !== activeKey) {
-						setActiveKey(key);
+			if (animationFrameId) return; // Skip if already scheduled
+			
+			animationFrameId = requestAnimationFrame(() => {
+				animationFrameId = null;
+				
+				// Cache button rects to avoid repeated getBoundingClientRect calls
+				const buttonData = Array.from(buttonRefs.current.entries()).map(([key, element]) => ({
+					key,
+					rect: element ? element.getBoundingClientRect() : null
+				}));
+				
+				for (const { key, rect } of buttonData) {
+					if (!rect) continue;
+					if (
+						event.clientX >= rect.left &&
+						event.clientX <= rect.right &&
+						event.clientY >= rect.top &&
+						event.clientY <= rect.bottom
+					) {
+						if (key !== activeKey) {
+							setActiveKey(key);
+						}
+						return;
 					}
-					return;
 				}
-			}
+			});
 		};
 
-		document.addEventListener("mousemove", handleGlobalMouseMove);
-		return () => document.removeEventListener("mousemove", handleGlobalMouseMove);
+		document.addEventListener("mousemove", handleGlobalMouseMove, { passive: true });
+		return () => {
+			document.removeEventListener("mousemove", handleGlobalMouseMove);
+			if (animationFrameId) {
+				cancelAnimationFrame(animationFrameId);
+			}
+		};
 	}, [isActive, activeKey]);
 
 	const contextValue = React.useMemo(

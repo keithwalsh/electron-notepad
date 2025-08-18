@@ -53,15 +53,17 @@ export const RootMenu: React.FC<RootMenuProps> = ({
 }) => {
     const { rootPopupState } = useContext(CascadingContext);
     const { TransitionProps: deprecatedTransitionProps, slotProps: incomingSlotProps, ...restPopoverProps } = (PopoverProps as any) ?? {};
-    const mergedTransitionSlotProps = {
+    
+    const mergedTransitionSlotProps = useMemo(() => ({
         timeout: 0,
         ...(deprecatedTransitionProps ?? {}),
         ...(incomingSlotProps?.transition ?? {})
-    };
-    const popoverSlotProps = {
+    }), [deprecatedTransitionProps, incomingSlotProps?.transition]);
+    
+    const popoverSlotProps = useMemo(() => ({
         ...(incomingSlotProps ?? {}),
         transition: mergedTransitionSlotProps
-    };
+    }), [incomingSlotProps, mergedTransitionSlotProps]);
     
     const context = useMemo(
         () => ({
@@ -82,14 +84,14 @@ export const RootMenu: React.FC<RootMenuProps> = ({
         [restPopoverProps?.PaperProps?.sx]
     );
 
-    const handleClose = (_: {}, reason: "backdropClick" | "escapeKeyDown") => {
+    const handleClose = useMemo(() => (_: {}, reason: "backdropClick" | "escapeKeyDown") => {
         if (reason === "backdropClick" || reason === "escapeKeyDown") {
             popupState.close();
             onRootClose?.();
         }
-    };
+    }, [popupState, onRootClose]);
 
-    const menuContent = (
+    const menuContent = useMemo(() => (
         <CascadingContext.Provider value={context}>
             <MenuList dense sx={{ m: 0, p: 0 }}>
                 {menuItems.map((item: MenuItems, index: number) => {
@@ -115,7 +117,7 @@ export const RootMenu: React.FC<RootMenuProps> = ({
                 })}
             </MenuList>
         </CascadingContext.Provider>
-    );
+    ), [context, menuItems, disableRipple, useHover]);
 
     return (
         <Popover

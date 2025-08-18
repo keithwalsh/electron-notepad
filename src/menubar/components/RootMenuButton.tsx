@@ -17,7 +17,7 @@ export interface RootMenuButtonProps {
 	disableRipple?: boolean;
 }
 
-export const RootMenuButton: React.FC<RootMenuButtonProps> = ({ menu, disableRipple }) => {
+const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableRipple }) => {
 	const menuId = menu.id ?? menu.label;
 	const popupState = usePopupState({
 		variant: "popover" as const,
@@ -108,6 +108,8 @@ export const RootMenuButton: React.FC<RootMenuButtonProps> = ({ menu, disableRip
 		</React.Fragment>
 	);
 };
+
+export const RootMenuButton = React.memo(RootMenuButtonComponent);
 
 export default RootMenuButton;
 

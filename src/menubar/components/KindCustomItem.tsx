@@ -7,7 +7,7 @@ import React from "react";
 import { Box, MenuItem } from "@mui/material";
 import { MenuItemCustom } from "../types";
 
-export const KindCustomItem: React.FC<MenuItemCustom & { disableRipple?: boolean }> = ({ disableRipple, ...item }) => {
+const KindCustomItemComponent: React.FC<MenuItemCustom & { disableRipple?: boolean }> = ({ disableRipple, ...item }) => {
     return (
         <MenuItem
             disableRipple={disableRipple}
@@ -22,6 +22,8 @@ export const KindCustomItem: React.FC<MenuItemCustom & { disableRipple?: boolean
         </MenuItem>
     );
 };
+
+export const KindCustomItem = React.memo(KindCustomItemComponent);
 
 export default KindCustomItem;
 

@@ -65,15 +65,17 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
     ...props 
 }) => {
     const { rootPopupState } = useContext(CascadingContext);
-    const mergedTransitionSlotProps = {
+    
+    const mergedTransitionSlotProps = useMemo(() => ({
         ...(TransitionProps ?? {}),
         ...(slotProps?.transition ?? {}),
         timeout: 0
-    };
-    const incomingSlotProps = {
+    }), [TransitionProps, slotProps?.transition]);
+    
+    const incomingSlotProps = useMemo(() => ({
         ...(slotProps ?? {}),
         transition: mergedTransitionSlotProps
-    };
+    }), [slotProps, mergedTransitionSlotProps]);
     
     const context = useMemo(
         () => ({
@@ -94,7 +96,7 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
         [PaperProps?.sx]
     );
 
-    const menuContent = (
+    const menuContent = useMemo(() => (
         <CascadingContext.Provider value={context}>
             <MenuList dense sx={{ m: 0, p: 0 }}>
                 {menuItems.map((item: MenuItems, index: number) => {
@@ -120,7 +122,7 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
                 })}
             </MenuList>
         </CascadingContext.Provider>
-    );
+    ), [context, menuItems, disableRipple, useHover]);
 
     return (
         <StyledMenu

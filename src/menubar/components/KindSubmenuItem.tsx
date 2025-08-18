@@ -17,7 +17,7 @@ export interface CascadingSubmenuProps extends MenuItemSubmenu {
     useHover?: boolean;
 }
 
-export const CascadingSubmenu: React.FC<CascadingSubmenuProps> = ({ 
+const CascadingSubmenuComponent: React.FC<CascadingSubmenuProps> = ({ 
     label, 
     items, 
     icon, 
@@ -65,5 +65,7 @@ export const CascadingSubmenu: React.FC<CascadingSubmenuProps> = ({
         </React.Fragment>
     );
 };
+
+export const CascadingSubmenu = React.memo(CascadingSubmenuComponent);
 
 export default CascadingSubmenu;
