@@ -95,6 +95,7 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
             {...bindMenu(popupState)}
             autoFocus={props?.autoFocus ?? false}
             disableAutoFocusItem={props?.disableAutoFocusItem ?? true}
+            transitionDuration={0}
             PaperProps={{
                 ...(PaperProps ?? {}),
                 sx: paperSx,
