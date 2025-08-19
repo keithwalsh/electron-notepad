@@ -58,6 +58,13 @@ export interface MenuBarProps {
     disableRipple?: boolean;
     themeMode?: 'light' | 'dark';
     onToggleTheme?: () => void;
+    pasteReplaceRules?: PasteReplaceRule[];
+    onChangePasteReplaceRules?: (rules: PasteReplaceRule[]) => void;
+}
+
+export interface PasteReplaceRule {
+    find: string;
+    replace: string;
 }
 
 export interface CascadingMenuProps {
@@ -80,9 +87,7 @@ export interface CascadingMenuProps {
             vertical: "top" | "center" | "bottom";
             horizontal: "left" | "center" | "right";
         };
-        TransitionProps?: any;
         slotProps?: {
-            transition?: any;
             [key: string]: any;
         };
         [key: string]: any;

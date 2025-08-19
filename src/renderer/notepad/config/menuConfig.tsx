@@ -1,4 +1,4 @@
-import type { MenuConfig } from '../../../menubar';
+import type { MenuConfig } from '../../components/menubar';
 import { ClearAll, ExitToApp, FileOpen, NoteAdd, Redo, Save, SaveAs, Undo } from "@mui/icons-material";
 import { ContentCopy, ContentCut, ContentPasteGo, SelectAll, DeveloperBoard, Info, ZoomIn, ZoomOut, Refresh, Spellcheck, ViewHeadline } from "@mui/icons-material";
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Box, IconButton } from '@mui/material';
-import { Close, DarkMode, LightMode, Minimize } from '@mui/icons-material';
+import { Close, DarkMode, LightMode, Minimize, Settings } from '@mui/icons-material';
 import { VscChromeRestore } from "react-icons/vsc";
+import { SettingsDrawer } from './SettingsDrawer';
 
 interface WindowControlsProps {
   onMinimize?: () => void;
@@ -9,6 +10,8 @@ interface WindowControlsProps {
   onClose?: () => void;
   themeMode?: 'light' | 'dark';
   onToggleTheme?: () => void;
+  pasteReplaceRules?: { find: string; replace: string; }[];
+  onChangePasteReplaceRules?: (rules: { find: string; replace: string; }[]) => void;
 }
 
 export const WindowControls: React.FC<WindowControlsProps> = ({
@@ -16,7 +19,9 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
   onRestore,
   onClose,
   themeMode,
-  onToggleTheme
+  onToggleTheme,
+  pasteReplaceRules,
+  onChangePasteReplaceRules
 }) => {
   const handleToggleTheme = () => {
     if (onToggleTheme) {
@@ -48,6 +53,12 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
     }
   };
 
+  const [openSettings, setOpenSettings] = React.useState(false);
+
+  const toggleSettings = (newOpen: boolean) => () => {
+    setOpenSettings(newOpen);
+  };
+
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -55,6 +66,26 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
       height: '100%',
       ml: 'auto' // Push to the right side
     }}>
+
+      <IconButton
+        size="small"
+        onClick={toggleSettings(true)}
+        sx={{
+          borderRadius: 0,
+          width: 46,
+          height: 32,
+        }}
+        aria-label="minimize"
+      >
+        <Settings fontSize="small" />
+      </IconButton>
+      <SettingsDrawer
+        open={openSettings}
+        onClose={toggleSettings(false)}
+        pasteReplaceRules={pasteReplaceRules}
+        onChangePasteReplaceRules={onChangePasteReplaceRules}
+      />
+
       <IconButton
         size="small"
         onClick={handleToggleTheme}

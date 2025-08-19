@@ -4,15 +4,15 @@
  */
 
 import React, { useMemo } from "react";
-import { AppBar, Box, createTheme, ThemeProvider, Toolbar } from "@mui/material";
+import { AppBar as MuiAppBar, Box, createTheme, ThemeProvider, Toolbar } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { MenuBarProps } from "../types";
-import { useMenuHotkeys } from "../utils";
-import { MenuBarRenderer } from "./MenuBarRenderer";
+import { MenuBarProps } from "./menubar/types/types";
+import { useMenuHotkeys } from "./menubar/utils";
+import { MenuBarRenderer } from "./menubar/components/MenuBarRenderer";
 import { LuNotepadText } from "react-icons/lu";
-import WindowControls from "../../../components/WindowControls";
+import WindowControls from "./WindowControls";
 
-export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent", sx, themeMode, onToggleTheme }) => {
+export const AppBar: React.FC<MenuBarProps> = ({ config, color = "transparent", sx, themeMode, onToggleTheme, pasteReplaceRules, onChangePasteReplaceRules }) => {
     const menuConfig = config;
 
     // Set up hotkeys for the menu items
@@ -37,9 +37,9 @@ export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent",
 
     // Memoize the empty state to avoid recreating
     const emptyMenuBar = useMemo(() => (
-        <AppBar position="static" elevation={0} color={color} sx={sx}>
+        <MuiAppBar position="sticky" elevation={0} color={color} sx={sx}>
             <Toolbar variant="dense" disableGutters={true} role="toolbar"/>
-        </AppBar>
+        </MuiAppBar>
     ), [color, sx]);
 
     if (menuConfig.length === 0) {
@@ -47,8 +47,8 @@ export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent",
     }
 
     return (
-        <AppBar
-            position="static"
+        <MuiAppBar
+            position="sticky"
             elevation={0}
             data-testid="menu-bar-root"
             color={color}
@@ -68,12 +68,12 @@ export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent",
                     </Box>
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ WebkitAppRegion: 'no-drag' }}>
-                        <WindowControls themeMode={themeMode} onToggleTheme={onToggleTheme} />
+                        <WindowControls themeMode={themeMode} onToggleTheme={onToggleTheme} pasteReplaceRules={pasteReplaceRules} onChangePasteReplaceRules={onChangePasteReplaceRules} />
                     </Box>
                 </Toolbar>
             </ThemeProvider>
-        </AppBar>
+        </MuiAppBar>
     );
 }
 
-export default MenuBar;
+export default AppBar;

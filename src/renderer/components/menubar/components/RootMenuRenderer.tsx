@@ -110,7 +110,6 @@ export const RootMenu: React.FC<RootMenuProps> = ({
             open={popupState.isOpen}
             anchorEl={popupState.anchorEl}
             onClose={handleClose}
-            transitionDuration={0}
             anchorOrigin={{
                 vertical: 'bottom',
                 horizontal: 'left',

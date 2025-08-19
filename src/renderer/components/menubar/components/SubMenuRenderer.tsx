@@ -41,9 +41,7 @@ export interface SubMenuProps {
         sx?: SxProps<Theme>;
         [key: string]: any;
     };
-    TransitionProps?: any;
     slotProps?: {
-        transition?: any;
         [key: string]: any;
     }
     [key: string]: any;
@@ -95,7 +93,6 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
             {...bindMenu(popupState)}
             autoFocus={props?.autoFocus ?? false}
             disableAutoFocusItem={props?.disableAutoFocusItem ?? true}
-            transitionDuration={0}
             PaperProps={{
                 ...(PaperProps ?? {}),
                 sx: paperSx,
