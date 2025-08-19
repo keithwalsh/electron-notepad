@@ -7,11 +7,11 @@ export { default } from "./MenuBar";
 export * from "../types";
 
 // Export the new specialized menu components
-export { RootMenu } from "./RootMenu";
+export { RootMenu } from "./RootMenuRenderer";
 export { SubMenu } from "./SubMenuRenderer";
 export { CascadingSubmenu } from "./KindSubmenuItem";
 
-export { CascadingMenuItem } from "./CascadingMenuItem";
 export { KindActionItem } from "./KindActionItem";
 export { KindCustomItem } from "./KindCustomItem";
 export { KindDividerItem } from "./KindDividerItem";
+export { MenuBarButtonGroup, useMenuBarButtonGroup } from "./MenuBarButtonGroup";

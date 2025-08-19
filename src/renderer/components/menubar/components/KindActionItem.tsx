@@ -7,7 +7,7 @@
 import React, { useContext } from "react";
 import { MenuItem, ListItemText, Typography, alpha } from "@mui/material";
 import { MenuItemAction } from "../types";
-import { CascadingContext, renderListItemIcon } from "./CascadingShared";
+import { CascadingContext, renderListItemIcon } from "../helpers";
 
 const KindActionItemComponent: React.FC<MenuItemAction> = ({ ...item }) => {
     const { rootPopupState } = useContext(CascadingContext);

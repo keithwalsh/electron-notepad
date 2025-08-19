@@ -1,10 +1,7 @@
 import React from 'react';
 import { Box, IconButton } from '@mui/material';
-import MinimizeIcon from '@mui/icons-material/Minimize';
-import CloseIcon from '@mui/icons-material/Close';
+import { Close, DarkMode, LightMode, Minimize } from '@mui/icons-material';
 import { VscChromeRestore } from "react-icons/vsc";
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import LightModeIcon from '@mui/icons-material/LightMode';
 
 interface WindowControlsProps {
   onMinimize?: () => void;
@@ -69,9 +66,9 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
         aria-label="toggle-theme"
       >
         {themeMode === 'dark' ? (
-          <LightModeIcon fontSize="small" />
+          <LightMode fontSize="small" />
         ) : (
-          <DarkModeIcon fontSize="small" />
+          <DarkMode fontSize="small" />
         )}
       </IconButton>
 
@@ -85,7 +82,7 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
         }}
         aria-label="minimize"
       >
-        <MinimizeIcon fontSize="small" />
+        <Minimize fontSize="small" />
       </IconButton>
       
       <IconButton
@@ -108,10 +105,16 @@ export const WindowControls: React.FC<WindowControlsProps> = ({
           borderRadius: 0,
           width: 46,
           height: 32,
+          '&:hover': {
+            backgroundColor: '#E81123',
+            '& .MuiSvgIcon-root': {
+              color: '#FFFFFF'
+            }
+          }
         }}
         aria-label="close"
       >
-        <CloseIcon fontSize="small" />
+        <Close fontSize="small" />
       </IconButton>
     </Box>
   );

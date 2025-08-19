@@ -8,17 +8,16 @@ import React from "react";
 import { Button, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { usePopupState } from "material-ui-popup-state/hooks";
-import { RootMenu } from "./RootMenu";
+import { RootMenu } from "./RootMenuRenderer";
 import { MenuConfig } from "../types";
-import { useRootMenuButtonGroup } from "./RootMenuButtonGroup";
+import { useMenuBarButtonGroup } from ".";
 
 
-export interface RootMenuButtonProps {
+export interface MenuBarButtonProps {
 	menu: MenuConfig;
-	disableRipple?: boolean;
 }
 
-const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableRipple }) => {
+const MenuBarButtonComponent: React.FC<MenuBarButtonProps> = ({ menu }) => {
 	const menuId = menu.id ?? menu.label;
 	const popupState = usePopupState({
 		variant: "popover" as const,
@@ -26,7 +25,7 @@ const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableR
 	});
 
 	const buttonRef = React.useRef<HTMLButtonElement | null>(null);
-	const { isActive, activeKey, registerButtonRef, onActivate, onHoverNavigate, onRootClose } = useRootMenuButtonGroup();
+	const { isActive, activeKey, registerButtonRef, onActivate, onHoverNavigate, onRootClose } = useMenuBarButtonGroup();
 	
 	// Handle button ref callback
 	const handleButtonRef = React.useCallback((ref: HTMLButtonElement | null) => {
@@ -92,7 +91,7 @@ const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableR
 					WebkitAppRegion: 'no-drag'
 				}}
 				disabled={menu.disabled}
-				disableRipple={disableRipple}
+				disableRipple
 			>
 				<Typography
 					variant="body2"
@@ -104,7 +103,6 @@ const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableR
 			<RootMenu
 				menuItems={menu.items}
 				popupState={popupState}
-				disableRipple={disableRipple}
 				useHover={true}
 				onRootClose={onRootClose}
 			/>
@@ -112,8 +110,8 @@ const RootMenuButtonComponent: React.FC<RootMenuButtonProps> = ({ menu, disableR
 	);
 };
 
-export const RootMenuButton = React.memo(RootMenuButtonComponent);
+export const MenuBarButton = React.memo(MenuBarButtonComponent);
 
-export default RootMenuButton;
+export default MenuBarButton;
 
 

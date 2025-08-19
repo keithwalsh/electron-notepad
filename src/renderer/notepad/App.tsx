@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { MenuBar } from '../../menubar';
+import { MenuBar } from '../components/menubar/components/MenuBar';
 import { createMenuConfig } from './config/menuConfig';
 import StatusBar from './StatusBar';
 

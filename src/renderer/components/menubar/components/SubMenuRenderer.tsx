@@ -4,16 +4,12 @@
  */
 
 import React, { useContext, useMemo } from "react";
-import HoverMenuImport from "material-ui-popup-state/HoverMenu";
 import { MenuList } from "@mui/material";
-import { bindMenu } from "material-ui-popup-state/hooks";
-import { styled } from "@mui/material/styles";
-import { SxProps, Theme } from "@mui/material/styles";
-import { PopupState } from "material-ui-popup-state/hooks";
+import { styled, SxProps, Theme } from "@mui/material/styles";
+import { bindMenu, PopupState } from "material-ui-popup-state/hooks";
+import HoverMenuImport from "material-ui-popup-state/HoverMenu";
 import { MenuItems } from "../types";
-import { CascadingContext } from "./CascadingShared";
-import { CascadingMenuItem } from "./CascadingMenuItem";
-import { CascadingSubmenu } from "./KindSubmenuItem";
+import { CascadingContext, renderMenuItemByKind } from "./../helpers";
 
 // Cast HoverMenu to any to bypass type checking
 const HoverMenu = HoverMenuImport as any;
@@ -31,7 +27,6 @@ const StyledMenu = styled(HoverMenu)(() => ({
 export interface SubMenuProps {
     menuItems: MenuItems[];
     popupState: PopupState;
-    disableRipple?: boolean;
     useHover?: boolean;
     anchorOrigin?: {
         vertical: "top" | "center" | "bottom";
@@ -56,11 +51,9 @@ export interface SubMenuProps {
 
 const SubMenuComponent: React.FC<SubMenuProps> = ({ 
     menuItems, 
-    popupState, 
-    disableRipple, 
+    popupState,
     useHover = true,
     PaperProps = {},
-    TransitionProps,
     slotProps,
     ...props 
 }) => {
@@ -90,27 +83,11 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
             <MenuList dense sx={{ m: 0, p: 0 }}>
                 {menuItems.map((item: MenuItems, index: number) => {
                     const baseId = (item as any).id ?? (item as any).label ?? index;
-                    if (item.kind === "submenu") {
-                        return (
-                            <CascadingSubmenu
-                                key={`submenu-${baseId}`}
-                                {...item}
-                                popupId={`submenu-${baseId}`}
-                                disableRipple
-                                useHover={useHover}
-                            />
-                        );
-                    }
-                    return (
-                        <CascadingMenuItem
-                            key={`item-${baseId}`}
-                            {...item}
-                        />
-                    );
+                    return renderMenuItemByKind({ item, baseId, useHover });
                 })}
             </MenuList>
         </CascadingContext.Provider>
-    ), [context, menuItems, disableRipple, useHover]);
+    ), [context, menuItems, useHover]);
 
     return (
         <StyledMenu
@@ -118,7 +95,6 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
             {...bindMenu(popupState)}
             autoFocus={props?.autoFocus ?? false}
             disableAutoFocusItem={props?.disableAutoFocusItem ?? true}
-            transitionDuration={0}
             PaperProps={{
                 ...(PaperProps ?? {}),
                 sx: paperSx,

@@ -6,7 +6,7 @@
 
 import React from "react";
 
-export interface RootMenuButtonGroupContextValue {
+export interface MenuBarButtonGroupContextValue {
 	isActive: boolean;
 	activeKey: string | null;
 	registerButtonRef: (key: string, ref: HTMLButtonElement | null) => void;
@@ -15,7 +15,7 @@ export interface RootMenuButtonGroupContextValue {
 	onRootClose: () => void;
 }
 
-export const RootMenuButtonGroupContext = React.createContext<RootMenuButtonGroupContextValue>({
+export const MenuBarButtonGroupContext = React.createContext<MenuBarButtonGroupContextValue>({
 	isActive: false,
 	activeKey: null,
 	registerButtonRef: () => {},
@@ -24,11 +24,11 @@ export const RootMenuButtonGroupContext = React.createContext<RootMenuButtonGrou
 	onRootClose: () => {},
 });
 
-export interface RootMenuButtonGroupProps {
+export interface MenuBarButtonGroupProps {
 	children: React.ReactNode;
 }
 
-export const RootMenuButtonGroup: React.FC<RootMenuButtonGroupProps> = ({ children }) => {
+export const MenuBarButtonGroup: React.FC<MenuBarButtonGroupProps> = ({ children }) => {
 	const [isActive, setIsActive] = React.useState<boolean>(false);
 	const [activeKey, setActiveKey] = React.useState<string | null>(null);
 
@@ -104,14 +104,14 @@ export const RootMenuButtonGroup: React.FC<RootMenuButtonGroupProps> = ({ childr
 	);
 
 	return (
-		<RootMenuButtonGroupContext.Provider value={contextValue}>
+		<MenuBarButtonGroupContext.Provider value={contextValue}>
 			{children}
-		</RootMenuButtonGroupContext.Provider>
+		</MenuBarButtonGroupContext.Provider>
 	);
 };
 
-export const useRootMenuButtonGroup = () => React.useContext(RootMenuButtonGroupContext);
+export const useMenuBarButtonGroup = () => React.useContext(MenuBarButtonGroupContext);
 
-export default RootMenuButtonGroup;
+export default MenuBarButtonGroup;
 
 

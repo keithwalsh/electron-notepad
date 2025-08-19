@@ -8,11 +8,11 @@ import { AppBar, Box, createTheme, ThemeProvider, Toolbar } from "@mui/material"
 import { useTheme } from "@mui/material/styles";
 import { MenuBarProps } from "../types";
 import { useMenuHotkeys } from "../utils";
-import { RootMenuRenderer } from "./RootMenuRenderer";
+import { MenuBarRenderer } from "./MenuBarRenderer";
 import { LuNotepadText } from "react-icons/lu";
-import WindowControls from "../../renderer/components/WindowControls";
+import WindowControls from "../../../components/WindowControls";
 
-export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent", sx, disableRipple, themeMode, onToggleTheme }) => {
+export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent", sx, themeMode, onToggleTheme }) => {
     const menuConfig = config;
 
     // Set up hotkeys for the menu items
@@ -64,7 +64,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({ config, color = "transparent",
                         <Box sx={{ mt: '4px', mx: '10px'}}>
                             <LuNotepadText size={18} color="inherit" />
                         </Box>
-                        <RootMenuRenderer menuConfig={menuConfig} disableRipple={disableRipple} />
+                        <MenuBarRenderer menuConfig={menuConfig} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ WebkitAppRegion: 'no-drag' }}>

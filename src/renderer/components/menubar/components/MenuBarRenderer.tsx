@@ -5,14 +5,14 @@
 
 import React from "react";
 import { Box } from "@mui/material";
-import { MenuConfig, RootMenuRendererProps } from "../types";
-import RootMenuButton from "./RootMenuButton";
-import { RootMenuButtonGroup } from "./RootMenuButtonGroup";
+import { MenuConfig, MenuBarRendererProps } from "../types";
+import MenuBarButton from "./MenuBarButton";
+import { MenuBarButtonGroup } from "./MenuBarButtonGroup";
 
 
-const RootMenuRendererComponent: React.FC<RootMenuRendererProps> = ({ menuConfig, disableRipple }) => {
+const MenuBarRendererComponent: React.FC<MenuBarRendererProps> = ({ menuConfig }) => {
     return (
-        <RootMenuButtonGroup>
+        <MenuBarButtonGroup>
             <Box 
                 data-testid="menu-toolbar"
                 sx={{ display: 'flex', WebkitAppRegion: 'no-drag' }}
@@ -20,16 +20,15 @@ const RootMenuRendererComponent: React.FC<RootMenuRendererProps> = ({ menuConfig
                 {menuConfig.map((menu: MenuConfig) => {
                     const key = menu.id ?? menu.label;
                     return (
-                        <RootMenuButton
+                        <MenuBarButton
                             key={key}
                             menu={menu}
-                            disableRipple
                         />
                     );
                 })}
-            </Box>
-        </RootMenuButtonGroup>
+            </Box>  
+        </MenuBarButtonGroup>
     );
 };
 
-export const RootMenuRenderer = React.memo(RootMenuRendererComponent);
+export const MenuBarRenderer = React.memo(MenuBarRendererComponent);

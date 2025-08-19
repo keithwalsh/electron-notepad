@@ -8,9 +8,7 @@ import { MenuList, Popover } from "@mui/material";
 import { SxProps, Theme } from "@mui/material/styles";
 import { PopupState } from "material-ui-popup-state/hooks";
 import { MenuItems } from "../types";
-import { CascadingContext } from "./CascadingShared";
-import { CascadingMenuItem } from "./CascadingMenuItem";
-import { CascadingSubmenu } from "./KindSubmenuItem";
+import { CascadingContext, renderMenuItemByKind } from "./../helpers";
 
 export interface RootMenuProps {
     menuItems: MenuItems[];
@@ -99,28 +97,11 @@ export const RootMenu: React.FC<RootMenuProps> = ({
             <MenuList dense sx={{ m: 0, p: 0 }}>
                 {menuItems.map((item: MenuItems, index: number) => {
                     const baseId = (item as any).id ?? (item as any).label ?? index;
-                    if (item.kind === "submenu") {
-                        return (
-                            <CascadingSubmenu
-                                key={`submenu-${baseId}`}
-                                {...item}
-                                popupId={`submenu-${baseId}`}
-                                disableRipple={disableRipple}
-                                useHover={useHover}
-                            />
-                        );
-                    }
-                    return (
-                        <CascadingMenuItem
-                            key={`item-${baseId}`}
-                            {...item}
-                            disableRipple={disableRipple}
-                        />
-                    );
+                    return renderMenuItemByKind({ item, baseId, useHover });
                 })}
             </MenuList>
         </CascadingContext.Provider>
-    ), [context, menuItems, disableRipple, useHover]);
+    ), [context, menuItems, useHover]);
 
     return (
         <Popover
