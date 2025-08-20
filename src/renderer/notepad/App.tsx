@@ -27,6 +27,7 @@ export function App(): JSX.Element {
     const saved = localStorage.getItem('notepad:statusBar');
     return saved !== null ? saved === 'true' : true;
   });
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
 
   useEffect(() => {
     const saved = localStorage.getItem('notepad:text');
@@ -66,6 +67,22 @@ export function App(): JSX.Element {
     };
   }, []);
 
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    (async () => {
+      try {
+        const currentZoom = await window.electronAPI?.getZoomLevel?.();
+        if (typeof currentZoom === 'number') setZoomLevel(currentZoom);
+      } catch {}
+    })();
+    try {
+      unsubscribe = window.electronAPI?.onZoomChanged?.((zoomFactor) => setZoomLevel(zoomFactor));
+    } catch {}
+    return () => {
+      try { unsubscribe?.(); } catch {}
+    };
+  }, []);
+
   // Ctrl + mouse wheel to zoom in/out
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -97,7 +114,7 @@ export function App(): JSX.Element {
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <CssBaseline />
         <AppBar config={menuConfig} color="default" disableRipple={true} sx={{ borderBottom: '1px solid #e5e5e5' }} themeMode={mode} onToggleTheme={toggleTheme} pasteReplaceRules={pasteReplaceRules} onChangePasteReplaceRules={setPasteReplaceRules} />
-        <Box sx={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'auto' }}>
+        <Box sx={{ flex: 1, display: 'flex', overflow: 'auto', height: '100vh' }}>
           <TextField
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -129,16 +146,31 @@ export function App(): JSX.Element {
             fullWidth
             spellCheck={spellCheckEnabled}
             variant="outlined"
-            InputProps={{
-              sx: {
-                fontFamily: 'Consolas, Menlo, monospace',
-                fontSize: 14,
+            slotProps={{
+              input: {
+                sx: {
+                  fontFamily: 'Consolas, Menlo, monospace',
+                  fontSize: 14,
+                },
               },
             }}
-            sx={{ flex: 1, p: 1.5, '& .MuiOutlinedInput-notchedOutline': { border: 'none' } }}
+            sx={{ 
+              height: '100vh', 
+              flex: 1, 
+              p: 1.5, 
+              '& .MuiOutlinedInput-notchedOutline': { border: 'none' }, 
+              '& .MuiOutlinedInput-root': { 
+                height: '100vh',
+                py: 0.6,
+                px: 1,
+                lineHeight: 1.16,
+                fontSize: '0.9em',
+                alignItems: 'flex-start'
+              } 
+            }}
           />
         </Box>
-        {statusBarVisible && <StatusBar filePath={filePath} charCount={charCount} lineCount={lineCount} text={text} />}
+        {statusBarVisible && <StatusBar filePath={filePath} charCount={charCount} lineCount={lineCount} text={text} zoomPercentage={zoomLevel} />}
       </Box>
     </ThemeProvider>
   );

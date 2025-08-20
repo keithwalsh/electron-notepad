@@ -11,6 +11,8 @@ export interface IElectronAPI {
   zoomReset: () => Promise<void>;
   zoomIn: () => Promise<void>;
   zoomOut: () => Promise<void>;
+  getZoomLevel: () => Promise<number>;
+  onZoomChanged: (callback: (zoomFactor: number) => void) => () => void;
   openFile: () => Promise<{ canceled: boolean; path?: string; content?: string }>;
   saveFile: (args: { path?: string; content: string }) => Promise<{ canceled: boolean; path?: string }>;
   saveFileAs: (args: { content: string }) => Promise<{ canceled: boolean; path?: string }>;

@@ -110,13 +110,21 @@ electron.ipcMain.handle("window:toggle-fullscreen", () => {
 electron.ipcMain.handle("window:zoom-reset", () => {
   if (mainWindow) {
     mainWindow.webContents.setZoomFactor(1);
+    mainWindow.webContents.send("zoom-changed", 1);
   }
+});
+electron.ipcMain.handle("window:get-zoom-level", () => {
+  if (mainWindow) {
+    return mainWindow.webContents.getZoomFactor();
+  }
+  return 1;
 });
 electron.ipcMain.handle("window:zoom-in", () => {
   if (mainWindow) {
     const current = mainWindow.webContents.getZoomFactor();
     const next = Math.min(3, Math.round((current + 0.1) * 10) / 10);
     mainWindow.webContents.setZoomFactor(next);
+    mainWindow.webContents.send("zoom-changed", next);
   }
 });
 electron.ipcMain.handle("window:zoom-out", () => {
@@ -124,6 +132,7 @@ electron.ipcMain.handle("window:zoom-out", () => {
     const current = mainWindow.webContents.getZoomFactor();
     const next = Math.max(0.3, Math.round((current - 0.1) * 10) / 10);
     mainWindow.webContents.setZoomFactor(next);
+    mainWindow.webContents.send("zoom-changed", next);
   }
 });
 electron.ipcMain.handle("file:open", async () => {

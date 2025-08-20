@@ -21,6 +21,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   zoomReset: () => ipcRenderer.invoke('window:zoom-reset'),
   zoomIn: () => ipcRenderer.invoke('window:zoom-in'),
   zoomOut: () => ipcRenderer.invoke('window:zoom-out'),
+  getZoomLevel: () => ipcRenderer.invoke('window:get-zoom-level') as Promise<number>,
+  onZoomChanged: (callback: (zoomFactor: number) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, zoomFactor: number) => callback(zoomFactor);
+    ipcRenderer.on('zoom-changed', listener);
+    return () => ipcRenderer.removeListener('zoom-changed', listener);
+  },
   openFile: () => ipcRenderer.invoke('file:open'),
   saveFile: (args: { path?: string; content: string }) => ipcRenderer.invoke('file:save', args),
   saveFileAs: (args: { content: string }) => ipcRenderer.invoke('file:save-as', args)

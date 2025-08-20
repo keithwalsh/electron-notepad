@@ -54,8 +54,8 @@ export const RootMenu: React.FC<RootMenuProps> = ({
     
     const mergedTransitionSlotProps = useMemo(() => ({
         timeout: 0,
-        enter: 0,
-        exit: 0,
+        enter: false,
+        exit: false,
         ...(deprecatedTransitionProps ?? {}),
         ...(incomingSlotProps?.transition ?? {})
     }), [deprecatedTransitionProps, incomingSlotProps?.transition]);

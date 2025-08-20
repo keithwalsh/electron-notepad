@@ -138,7 +138,16 @@ ipcMain.handle('window:toggle-fullscreen', () => {
 ipcMain.handle('window:zoom-reset', () => {
   if (mainWindow) {
     mainWindow.webContents.setZoomFactor(1);
+    // Notify renderer of zoom change
+    mainWindow.webContents.send('zoom-changed', 1);
   }
+});
+
+ipcMain.handle('window:get-zoom-level', () => {
+  if (mainWindow) {
+    return mainWindow.webContents.getZoomFactor();
+  }
+  return 1;
 });
 
 ipcMain.handle('window:zoom-in', () => {
@@ -146,6 +155,8 @@ ipcMain.handle('window:zoom-in', () => {
     const current = mainWindow.webContents.getZoomFactor();
     const next = Math.min(3, Math.round((current + 0.1) * 10) / 10);
     mainWindow.webContents.setZoomFactor(next);
+    // Notify renderer of zoom change
+    mainWindow.webContents.send('zoom-changed', next);
   }
 });
 
@@ -154,6 +165,8 @@ ipcMain.handle('window:zoom-out', () => {
     const current = mainWindow.webContents.getZoomFactor();
     const next = Math.max(0.3, Math.round((current - 0.1) * 10) / 10);
     mainWindow.webContents.setZoomFactor(next);
+    // Notify renderer of zoom change
+    mainWindow.webContents.send('zoom-changed', next);
   }
 });
 

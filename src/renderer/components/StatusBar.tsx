@@ -6,6 +6,7 @@ interface StatusBarProps {
   charCount: number;
   lineCount: number;
   text: string | null | undefined;
+  zoomPercentage: number;
 }
 
 // Utility function to detect line endings in text
@@ -51,7 +52,7 @@ const getDefaultLineEndingFormat = (): string => {
   }
 };
 
-export const StatusBar: React.FC<StatusBarProps> = ({ filePath, charCount, lineCount, text }) => {
+export const StatusBar: React.FC<StatusBarProps> = ({ filePath, charCount, lineCount, text, zoomPercentage }) => {
   const lineEndingFormat = useMemo(() => detectLineEndings(text), [text]);
 
   return (
@@ -83,6 +84,7 @@ export const StatusBar: React.FC<StatusBarProps> = ({ filePath, charCount, lineC
           divider={<Divider orientation="vertical" flexItem />}
           spacing={2}
         >
+          <Typography variant="caption">{Math.round(zoomPercentage * 100)}%</Typography>
           <Typography variant="caption">{lineEndingFormat}</Typography>
           <Typography variant="caption">UTF-8</Typography>
         </Stack>
