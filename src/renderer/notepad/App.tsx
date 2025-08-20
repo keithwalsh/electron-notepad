@@ -4,8 +4,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { AppBar } from '../components/AppBar';
+import { StatusBar } from '../components/StatusBar';
 import { createMenuConfig } from './config/menuConfig';
-import StatusBar from '../components/StatusBar';
 
 export function App(): JSX.Element {
   const [text, setText] = useState('');
@@ -66,6 +66,22 @@ export function App(): JSX.Element {
     };
   }, []);
 
+  // Ctrl + mouse wheel to zoom in/out
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      // Prevent default page zoom/scroll to use our controlled zoom via IPC
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        try { window.electronAPI?.zoomIn?.(); } catch {}
+      } else if (e.deltaY > 0) {
+        try { window.electronAPI?.zoomOut?.(); } catch {}
+      }
+    };
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel as EventListener);
+  }, []);
+
   const charCount = useMemo(() => text.length, [text]);
   const lineCount = useMemo(() => text.split(/\n/).length, [text]);
 
@@ -122,7 +138,7 @@ export function App(): JSX.Element {
             sx={{ flex: 1, p: 1.5, '& .MuiOutlinedInput-notchedOutline': { border: 'none' } }}
           />
         </Box>
-        {statusBarVisible && <StatusBar filePath={filePath} charCount={charCount} lineCount={lineCount} />}
+        {statusBarVisible && <StatusBar filePath={filePath} charCount={charCount} lineCount={lineCount} text={text} />}
       </Box>
     </ThemeProvider>
   );

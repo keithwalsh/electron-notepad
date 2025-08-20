@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog, session } from 'electron';
 import { readFile, writeFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -44,6 +44,25 @@ async function createMainWindow() {
 }
 
 app.whenReady().then(async () => {
+  // Configure Content Security Policy for additional security
+  session.defaultSession.webSecurity = true;
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    // Deny all permission requests for security
+    callback(false);
+  });
+
+  // Set additional CSP headers via session
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws: wss:;"
+        ]
+      }
+    });
+  });
+
   await createMainWindow();
 
   app.on('activate', () => {

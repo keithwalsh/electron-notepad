@@ -8,7 +8,7 @@ import { MenuList, Popover } from "@mui/material";
 import { SxProps, Theme } from "@mui/material/styles";
 import { PopupState } from "material-ui-popup-state/hooks";
 import { MenuItems } from "../types";
-import { CascadingContext, renderMenuItemByKind } from "./../helpers";
+import { CascadingContext, renderMenuItemByKind } from "../helpers";
 
 export interface RootMenuProps {
     menuItems: MenuItems[];

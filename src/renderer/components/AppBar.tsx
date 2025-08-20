@@ -8,7 +8,7 @@ import { AppBar as MuiAppBar, Box, createTheme, ThemeProvider, Toolbar } from "@
 import { useTheme } from "@mui/material/styles";
 import { MenuBarProps } from "./menubar/types/types";
 import { useMenuHotkeys } from "./menubar/utils";
-import { MenuBarRenderer } from "./menubar/components/MenuBarRenderer";
+import { MenuBar } from "./menubar";
 import { LuNotepadText } from "react-icons/lu";
 import WindowControls from "./WindowControls";
 
@@ -64,7 +64,7 @@ export const AppBar: React.FC<MenuBarProps> = ({ config, color = "transparent", 
                         <Box sx={{ mt: '4px', mx: '10px'}}>
                             <LuNotepadText size={18} color="inherit" />
                         </Box>
-                        <MenuBarRenderer menuConfig={menuConfig} />
+                        <MenuBar menuConfig={menuConfig} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ WebkitAppRegion: 'no-drag' }}>

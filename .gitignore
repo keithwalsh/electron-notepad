@@ -1,1 +1,33 @@
 node_modules
+out/
+dist/
+build/
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Lint cache
+.eslintcache
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Env files (keep only checked-in examples)
+.env.local
+.env.*.local
+
+# Tooling caches
+.vite/
+.idea/

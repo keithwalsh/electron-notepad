@@ -9,7 +9,7 @@ import { styled, SxProps, Theme } from "@mui/material/styles";
 import { bindMenu, PopupState } from "material-ui-popup-state/hooks";
 import HoverMenuImport from "material-ui-popup-state/HoverMenu";
 import { MenuItems } from "../types";
-import { CascadingContext, renderMenuItemByKind } from "./../helpers";
+import { CascadingContext, renderMenuItemByKind } from "../helpers";
 
 // Cast HoverMenu to any to bypass type checking
 const HoverMenu = HoverMenuImport as any;

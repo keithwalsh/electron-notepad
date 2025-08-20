@@ -8,7 +8,7 @@ import React from "react";
 import { Button, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { usePopupState } from "material-ui-popup-state/hooks";
-import { RootMenu } from "./RootMenuRenderer";
+import { RootMenu } from "./RootMenu";
 import { MenuConfig } from "../types";
 import { useMenuBarButtonGroup } from ".";
 

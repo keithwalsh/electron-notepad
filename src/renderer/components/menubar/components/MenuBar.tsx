@@ -31,4 +31,4 @@ const MenuBarRendererComponent: React.FC<MenuBarRendererProps> = ({ menuConfig }
     );
 };
 
-export const MenuBarRenderer = React.memo(MenuBarRendererComponent);
+export const MenuBar = React.memo(MenuBarRendererComponent);

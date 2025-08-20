@@ -9,7 +9,7 @@ import { ChevronRight } from "@mui/icons-material";
 import { usePopupState, bindHover, bindTrigger } from "material-ui-popup-state/hooks";
 import { MenuItemSubmenu } from "../types";
 import { CascadingContext, renderListItemIcon } from "../helpers";
-import { SubMenu } from "./SubMenuRenderer";
+import { SubMenu } from "./SubMenu";
 
 export interface CascadingSubmenuProps extends MenuItemSubmenu {
     popupId: string;
