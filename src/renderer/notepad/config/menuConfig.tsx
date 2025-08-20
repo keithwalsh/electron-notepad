@@ -13,9 +13,13 @@ interface CreateMenuConfigParams {
   setFilePath: (path: string | null) => void;
   setSpellCheckEnabled: (value: boolean) => void;
   setStatusBarVisible: (value: boolean) => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
-export function createMenuConfig({ text, filePath, devToolsOpen, spellCheckEnabled, statusBarVisible, setText, setFilePath, setSpellCheckEnabled, setStatusBarVisible }: CreateMenuConfigParams): MenuConfig[] {
+export function createMenuConfig({ text, filePath, devToolsOpen, spellCheckEnabled, statusBarVisible, setText, setFilePath, setSpellCheckEnabled, setStatusBarVisible, undo, redo, canUndo, canRedo }: CreateMenuConfigParams): MenuConfig[] {
   return [
     {
       label: 'File',
@@ -50,8 +54,8 @@ export function createMenuConfig({ text, filePath, devToolsOpen, spellCheckEnabl
     {
       label: 'Edit',
       items: [
-        { kind: 'action', label: 'Undo', shortcut: 'Ctrl+Z', icon: <Undo />, action: () => { try { document.execCommand?.('undo'); } catch {} } },
-        { kind: 'action', label: 'Redo', shortcut: 'Ctrl+Y', icon: <Redo />, action: () => { try { document.execCommand?.('redo'); } catch {} } },
+        { kind: 'action', label: 'Undo', shortcut: 'Ctrl+Z', icon: <Undo />, action: undo, disabled: !canUndo },
+        { kind: 'action', label: 'Redo', shortcut: 'Ctrl+Y', icon: <Redo />, action: redo, disabled: !canRedo },
         { kind: 'divider' },
         { kind: 'action', label: 'Cut', shortcut: 'Ctrl+X', icon: <ContentCut />, action: () => { try { document.execCommand?.('cut'); } catch {} } },
         { kind: 'action', label: 'Copy', shortcut: 'Ctrl+C', icon: <ContentCopy />, action: () => { try { document.execCommand?.('copy'); } catch {} } },
