@@ -7,18 +7,21 @@ import React from "react";
 import { Box, MenuItem } from "@mui/material";
 import { MenuItemCustom } from "../types";
 
+const CUSTOM_MENU_ITEM_SX = {
+	px: 1.5,
+	'&:hover': {
+		backgroundColor: 'transparent'
+	}
+};
+const CUSTOM_BOX_SX = { minWidth: 200 };
+
 const KindCustomItemComponent: React.FC<MenuItemCustom> = ({ ...item }) => {
     return (
         <MenuItem
             disableRipple
-            sx={{
-                px: 1.5,
-                '&:hover': {
-                    backgroundColor: 'transparent'
-                }
-            }}
+			sx={CUSTOM_MENU_ITEM_SX}
         >
-            <Box sx={{ minWidth: 200 }}>{item.component}</Box>
+			<Box sx={CUSTOM_BOX_SX}>{item.component}</Box>
         </MenuItem>
     );
 };

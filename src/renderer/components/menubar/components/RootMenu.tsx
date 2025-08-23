@@ -10,6 +10,10 @@ import { PopupState } from "material-ui-popup-state/hooks";
 import { MenuItems } from "../types";
 import { CascadingContext, renderMenuItemByKind } from "../helpers";
 
+const MENU_LIST_COMPACT_SX = { m: 0, p: 0 };
+const DEFAULT_ANCHOR_ORIGIN = { vertical: 'bottom', horizontal: 'left' as const };
+const DEFAULT_TRANSFORM_ORIGIN = { vertical: 'top', horizontal: 'left' as const };
+
 export interface RootMenuProps {
     menuItems: MenuItems[];
     popupState: PopupState;
@@ -94,7 +98,7 @@ export const RootMenu: React.FC<RootMenuProps> = ({
 
     const menuContent = useMemo(() => (
         <CascadingContext.Provider value={context}>
-            <MenuList dense sx={{ m: 0, p: 0 }}>
+            <MenuList dense sx={MENU_LIST_COMPACT_SX}>
                 {menuItems.map((item: MenuItems, index: number) => {
                     const baseId = (item as any).id ?? (item as any).label ?? index;
                     return renderMenuItemByKind({ item, baseId, useHover });
@@ -114,13 +118,11 @@ export const RootMenu: React.FC<RootMenuProps> = ({
             disableRestoreFocus
             disableEnforceFocus
             anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+                ...DEFAULT_ANCHOR_ORIGIN,
                 ...(restPopoverProps?.anchorOrigin ?? {})
             }}
             transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
+                ...DEFAULT_TRANSFORM_ORIGIN,
                 ...(restPopoverProps?.transformOrigin ?? {})
             }}
             PaperProps={{

@@ -11,6 +11,8 @@ import HoverMenuImport from "material-ui-popup-state/HoverMenu";
 import { MenuItems } from "../types";
 import { CascadingContext, renderMenuItemByKind } from "../helpers";
 
+const MENU_LIST_COMPACT_SX = { m: 0, p: 0 };
+
 // Cast HoverMenu to any to bypass type checking
 const HoverMenu = HoverMenuImport as any;
 
@@ -78,7 +80,7 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
 
     const menuContent = useMemo(() => (
         <CascadingContext.Provider value={context}>
-            <MenuList dense sx={{ m: 0, p: 0 }}>
+            <MenuList dense sx={MENU_LIST_COMPACT_SX}>
                 {menuItems.map((item: MenuItems, index: number) => {
                     const baseId = (item as any).id ?? (item as any).label ?? index;
                     return renderMenuItemByKind({ item, baseId, useHover });

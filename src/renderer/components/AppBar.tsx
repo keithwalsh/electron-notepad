@@ -9,7 +9,7 @@ import { useTheme } from "@mui/material/styles";
 import { MenuBarProps } from "./menubar/types/types";
 import { useMenuHotkeys } from "./menubar/utils";
 import { MenuBar } from "./menubar";
-import { LuNotepadText } from "react-icons/lu";
+import { IoLogoElectron } from "react-icons/io5";
 import WindowControls from "./WindowControls";
 
 export const AppBar: React.FC<MenuBarProps> = ({ config, color = "transparent", sx, themeMode, onToggleTheme, pasteReplaceRules, onChangePasteReplaceRules }) => {
@@ -61,8 +61,8 @@ export const AppBar: React.FC<MenuBarProps> = ({ config, color = "transparent", 
             <ThemeProvider theme={menuBarTheme}>
                 <Toolbar variant="dense" disableGutters={true} sx={{ display: 'flex', width: '100%', alignItems: 'center', WebkitAppRegion: 'drag' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', height: '100%', position: 'relative', zIndex: 1, WebkitAppRegion: 'no-drag' }}>
-                        <Box sx={{ mt: '4px', mx: '10px'}}>
-                            <LuNotepadText size={18} color="inherit" />
+                        <Box sx={{ mt: '6px', mx: '10px'}}>
+                            <IoLogoElectron size={20} color="inherit" />
                         </Box>
                         <MenuBar menuConfig={menuConfig} />
                     </Box>

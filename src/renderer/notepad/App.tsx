@@ -216,23 +216,38 @@ export function App(): JSX.Element {
   const charCount = useMemo(() => text.length, [text]);
   const lineCount = useMemo(() => text.split(/\n/).length, [text]);
 
-  const menuConfig = useMemo(() =>
-    createMenuConfig({ 
-      text, 
-      filePath, 
-      devToolsOpen, 
-      spellCheckEnabled, 
-      statusBarVisible, 
-      setText, 
-      setFilePath, 
-      setSpellCheckEnabled, 
-      setStatusBarVisible,
+  const canUndo = useMemo(() => undoStack.length > 0, [undoStack.length]);
+  const canRedo = useMemo(() => redoStack.length > 0, [redoStack.length]);
+
+  const menuConfig = useMemo(
+    () =>
+      createMenuConfig({
+        text,
+        filePath,
+        devToolsOpen,
+        spellCheckEnabled,
+        statusBarVisible,
+        setText,
+        setFilePath,
+        setSpellCheckEnabled,
+        setStatusBarVisible,
+        undo,
+        redo,
+        canUndo,
+        canRedo,
+      }),
+    [
+      text,
+      filePath,
+      devToolsOpen,
+      spellCheckEnabled,
+      statusBarVisible,
       undo,
       redo,
-      canUndo: undoStack.length > 0,
-      canRedo: redoStack.length > 0
-    })
-  , [text, filePath, devToolsOpen, spellCheckEnabled, statusBarVisible, undo, redo, undoStack.length, redoStack.length]);
+      canUndo,
+      canRedo,
+    ]
+  );
 
   const theme = useMemo(() => createTheme({ palette: { mode } }), [mode]);
   const toggleTheme = () => setMode(prev => prev === 'light' ? 'dark' : 'light');

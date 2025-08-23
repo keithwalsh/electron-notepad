@@ -11,6 +11,15 @@ import { MenuItemSubmenu } from "../types";
 import { CascadingContext, renderListItemIcon } from "../helpers";
 import { SubMenu } from "./SubMenu";
 
+const MENU_ITEM_SX_COMPACT = { m: 0.5, py: 0 };
+const ICON_ADJUST_SX = { mr: -4.5 };
+const LIST_ITEM_TEXT_SX = { px: 0 };
+const primaryText90 = (theme: any) => alpha(theme.palette.text.primary, 0.9);
+const LABEL_TYPO_SX = { color: primaryText90 };
+const CHEVRON_SX = { ml: 4, mr: -1, color: "text.secondary" };
+const SUBMENU_ANCHOR_ORIGIN = { vertical: "top", horizontal: "right" } as const;
+const SUBMENU_TRANSFORM_ORIGIN = { vertical: "top", horizontal: "left" } as const;
+
 export interface CascadingSubmenuProps extends MenuItemSubmenu {
     popupId: string;
     useHover?: boolean;
@@ -58,6 +67,9 @@ const CascadingSubmenuComponent: React.FC<CascadingSubmenuProps> = ({
         }
     }, []);
 
+    // Cleanup any scheduled open on unmount to avoid stray timeouts
+    React.useEffect(() => () => cancelScheduledOpen(), [cancelScheduledOpen]);
+
     return (
         <React.Fragment>
             <MenuItem 
@@ -70,22 +82,18 @@ const CascadingSubmenuComponent: React.FC<CascadingSubmenuProps> = ({
                     onMouseLeave: (e: any) => { cancelScheduledOpen(); (triggerProps as any)?.onMouseLeave?.(e); }
                 } : {})}
                 disableRipple
-                sx={{ m: 0.5, py: 0 }}
+                sx={MENU_ITEM_SX_COMPACT}
             >
-                {icon && renderListItemIcon(icon, { mr: -4.5 })}
-                <ListItemText inset sx={{ px: 0 }}>
-                    <Typography variant="body2" sx={{ color: (theme) => alpha(theme.palette.text.primary, 0.9) }}>{label}</Typography>   
+                {icon && renderListItemIcon(icon, ICON_ADJUST_SX)}
+                <ListItemText inset sx={LIST_ITEM_TEXT_SX}>
+                    <Typography variant="body2" sx={LABEL_TYPO_SX}>{label}</Typography>   
                 </ListItemText>
-                <ChevronRight sx={{
-                    ml: 4,
-                    mr: -1,
-                    color: "text.secondary"
-                }} />
+                <ChevronRight sx={CHEVRON_SX} />
             </MenuItem>
             <SubMenu
                 menuItems={items}
-                anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                anchorOrigin={SUBMENU_ANCHOR_ORIGIN}
+                transformOrigin={SUBMENU_TRANSFORM_ORIGIN}
                 popupState={popupState}
                 useHover={useHover}
             />
@@ -93,6 +101,36 @@ const CascadingSubmenuComponent: React.FC<CascadingSubmenuProps> = ({
     );
 };
 
-export const CascadingSubmenu = React.memo(CascadingSubmenuComponent);
+// Custom comparator: only re-render when visible props or the semantic shape of items changes
+const areEqualSubmenuItem = (prev: CascadingSubmenuProps, next: CascadingSubmenuProps) => {
+    if (
+        prev.label !== next.label ||
+        prev.disabled !== next.disabled ||
+        prev.selected !== next.selected ||
+        prev.useHover !== next.useHover
+    ) {
+        return false;
+    }
+
+    const a = prev.items;
+    const b = next.items;
+    if (a === b) return true;
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+
+    // Compare items by stable, relevant fields to avoid identity-based re-renders
+    for (let i = 0; i < a.length; i++) {
+        const ai: any = a[i] as any;
+        const bi: any = b[i] as any;
+        if (ai.kind !== bi.kind) return false;
+        if (ai.label !== bi.label) return false;
+        if (ai.disabled !== bi.disabled) return false;
+        if (ai.selected !== bi.selected) return false;
+        if (ai.kind === 'action') {
+            if (ai.shortcut !== bi.shortcut) return false;
+        }
+    }
+    return true;
+};
+export const CascadingSubmenu = React.memo(CascadingSubmenuComponent, areEqualSubmenuItem);
 
 export default CascadingSubmenu;

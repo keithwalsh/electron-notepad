@@ -12,6 +12,19 @@ import { RootMenu } from "./RootMenu";
 import { MenuConfig } from "../types";
 import { useMenuBarButtonGroup } from ".";
 
+// Stable style helpers
+const secondaryText90 = (theme: any) => alpha(theme.palette.text.secondary, 0.9);
+const BUTTON_SX_BASE = {
+	textTransform: "none",
+	px: 1.25,
+	py: 0.25,
+	minWidth: 0,
+	WebkitAppRegion: 'no-drag'
+};
+const BUTTON_HOVER_SELECTED_SX = { backgroundColor: 'action.selected' };
+const BUTTON_HOVER_DEFAULT_SX = { backgroundColor: 'action.hover' };
+const LABEL_TYPOGRAPHY_SX = { color: secondaryText90 };
+
 
 export interface MenuBarButtonProps {
 	menu: MenuConfig;
@@ -75,27 +88,21 @@ const MenuBarButtonComponent: React.FC<MenuBarButtonProps> = ({ menu }) => {
 			<Button
 				ref={handleButtonRef}
 				onClick={handleClick}
-				onMouseEnter={handleMouseEnter}
-				onMouseOver={handleMouseEnter}
 				onPointerEnter={handleMouseEnter as any}
 				color="inherit"
-				sx={{
-					textTransform: "none",
-					backgroundColor: popupState.isOpen ? 'action.selected' : 'transparent',
-					'&:hover': {
-						backgroundColor: popupState.isOpen ? 'action.selected' : 'action.hover',
-					},
-					px: 1.25,
-					py: 0.25,
-					minWidth: 0,
-					WebkitAppRegion: 'no-drag'
-				}}
+				sx={[
+					BUTTON_SX_BASE,
+					{
+						backgroundColor: popupState.isOpen ? 'action.selected' : 'transparent',
+						'&:hover': popupState.isOpen ? BUTTON_HOVER_SELECTED_SX : BUTTON_HOVER_DEFAULT_SX,
+					}
+				]}
 				disabled={menu.disabled}
 				disableRipple
 			>
 				<Typography
 					variant="body2"
-					sx={{ color: (theme) => alpha(theme.palette.text.secondary, 0.9) }}
+					sx={LABEL_TYPOGRAPHY_SX}
 				>
 					{menu.label}
 				</Typography>
