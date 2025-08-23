@@ -34,7 +34,6 @@ export interface RootMenuProps {
             vertical: "top" | "center" | "bottom";
             horizontal: "left" | "center" | "right";
         };
-        TransitionProps?: any;
         slotProps?: {
             transition?: any;
             [key: string]: any;
@@ -54,20 +53,7 @@ export const RootMenu: React.FC<RootMenuProps> = ({
     ...props 
 }) => {
     const { rootPopupState } = useContext(CascadingContext);
-    const { TransitionProps: deprecatedTransitionProps, slotProps: incomingSlotProps, ...restPopoverProps } = (PopoverProps as any) ?? {};
-    
-    const mergedTransitionSlotProps = useMemo(() => ({
-        timeout: 0,
-        enter: false,
-        exit: false,
-        ...(deprecatedTransitionProps ?? {}),
-        ...(incomingSlotProps?.transition ?? {})
-    }), [deprecatedTransitionProps, incomingSlotProps?.transition]);
-    
-    const popoverSlotProps = useMemo(() => ({
-        ...(incomingSlotProps ?? {}),
-        transition: mergedTransitionSlotProps
-    }), [incomingSlotProps, mergedTransitionSlotProps]);
+    const { slotProps: incomingSlotProps, ...restPopoverProps } = (PopoverProps as any) ?? {};
     
     const context = useMemo(
         () => ({
@@ -84,10 +70,17 @@ export const RootMenu: React.FC<RootMenuProps> = ({
             "& .MuiPaper-root": {
                 backgroundColor: "background.paper",
             },
-            ...(restPopoverProps?.PaperProps?.sx ?? {})
+            ...(restPopoverProps?.PaperProps?.sx ?? {}),
+            ...(incomingSlotProps?.paper?.sx ?? {}),
         }),
-        [restPopoverProps?.PaperProps?.sx]
+        [restPopoverProps?.PaperProps?.sx, incomingSlotProps?.paper?.sx]
     );
+
+    const paperSlotProps = useMemo(() => ({
+        ...(restPopoverProps?.PaperProps ?? {}),
+        ...(incomingSlotProps?.paper ?? {}),
+        sx: paperSx,
+    }), [restPopoverProps?.PaperProps, incomingSlotProps?.paper, paperSx]);
 
     const handleClose = useMemo(() => (_: {}, reason: "backdropClick" | "escapeKeyDown") => {
         if (reason === "backdropClick" || reason === "escapeKeyDown") {
@@ -125,11 +118,6 @@ export const RootMenu: React.FC<RootMenuProps> = ({
                 ...DEFAULT_TRANSFORM_ORIGIN,
                 ...(restPopoverProps?.transformOrigin ?? {})
             }}
-            PaperProps={{
-                ...(restPopoverProps?.PaperProps ?? {}),
-                sx: paperSx
-            }}
-            slotProps={popoverSlotProps}
         >
             {menuContent}
         </Popover>
