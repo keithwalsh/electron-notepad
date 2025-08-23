@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CodeEditor, CodeEditorHandle } from '../components/CodeEditor';
 import { AppBar } from '../components/AppBar';
 import { StatusBar } from '../components/StatusBar';
 import { createMenuConfig } from './config/menuConfig';
@@ -18,8 +18,7 @@ export function App(): JSX.Element {
   const [filePath, setFilePath] = useState<string | null>(null);
   const [undoStack, setUndoStack] = useState<HistoryEntry[]>([]);
   const [redoStack, setRedoStack] = useState<HistoryEntry[]>([]);
-  const textFieldRef = useRef<HTMLTextAreaElement>(null);
-  const undoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const editorRef = useRef<CodeEditorHandle | null>(null);
   const [mode, setMode] = useState<'light' | 'dark'>(() => (localStorage.getItem('notepad:theme') as 'light' | 'dark') || 'light');
   const [devToolsOpen, setDevToolsOpen] = useState<boolean>(false);
   const [spellCheckEnabled, setSpellCheckEnabled] = useState<boolean>(false);
@@ -39,84 +38,47 @@ export function App(): JSX.Element {
   });
   const [zoomLevel, setZoomLevel] = useState<number>(1);
 
-  // Add entry to undo stack
-  const pushToUndoStack = useCallback((newText: string, selectionStart: number = 0, selectionEnd: number = 0) => {
-    setUndoStack(prev => {
-      const newEntry: HistoryEntry = { text, selectionStart, selectionEnd };
-      const newStack = [...prev, newEntry];
-      // Limit stack size to prevent memory issues
-      return newStack.length > 100 ? newStack.slice(1) : newStack;
-    });
-    setRedoStack([]); // Clear redo stack when new action is performed
-    setText(newText);
-  }, [text]);
-
   // Undo functionality
   const undo = useCallback(() => {
     if (undoStack.length === 0) return;
-    
-    const currentSelection = textFieldRef.current ? {
-      start: textFieldRef.current.selectionStart || 0,
-      end: textFieldRef.current.selectionEnd || 0
-    } : { start: 0, end: 0 };
+    const currentSel = editorRef.current?.getSelection() ?? { from: 0, to: 0 };
 
     const lastEntry = undoStack[undoStack.length - 1];
     const currentEntry: HistoryEntry = { 
       text, 
-      selectionStart: currentSelection.start, 
-      selectionEnd: currentSelection.end 
+      selectionStart: currentSel.from, 
+      selectionEnd: currentSel.to 
     };
 
     setUndoStack(prev => prev.slice(0, -1));
     setRedoStack(prev => [...prev, currentEntry]);
     setText(lastEntry.text);
-
-    // Restore cursor position after state update
+    // Restore editor content and cursor without triggering change handler
     setTimeout(() => {
-      if (textFieldRef.current) {
-        textFieldRef.current.setSelectionRange(lastEntry.selectionStart, lastEntry.selectionEnd);
-      }
+      editorRef.current?.replaceAll(lastEntry.text, { from: lastEntry.selectionStart, to: lastEntry.selectionEnd });
     }, 0);
   }, [undoStack, text]);
 
   // Redo functionality
   const redo = useCallback(() => {
     if (redoStack.length === 0) return;
-    
-    const currentSelection = textFieldRef.current ? {
-      start: textFieldRef.current.selectionStart || 0,
-      end: textFieldRef.current.selectionEnd || 0
-    } : { start: 0, end: 0 };
+    const currentSel = editorRef.current?.getSelection() ?? { from: 0, to: 0 };
 
     const nextEntry = redoStack[redoStack.length - 1];
     const currentEntry: HistoryEntry = { 
       text, 
-      selectionStart: currentSelection.start, 
-      selectionEnd: currentSelection.end 
+      selectionStart: currentSel.from, 
+      selectionEnd: currentSel.to 
     };
 
     setRedoStack(prev => prev.slice(0, -1));
     setUndoStack(prev => [...prev, currentEntry]);
     setText(nextEntry.text);
-
-    // Restore cursor position after state update
+    // Restore editor content and cursor without triggering change handler
     setTimeout(() => {
-      if (textFieldRef.current) {
-        textFieldRef.current.setSelectionRange(nextEntry.selectionStart, nextEntry.selectionEnd);
-      }
+      editorRef.current?.replaceAll(nextEntry.text, { from: nextEntry.selectionStart, to: nextEntry.selectionEnd });
     }, 0);
   }, [redoStack, text]);
-
-  // Debounced undo stack push for regular typing
-  const debouncedPushToUndoStack = useCallback((newText: string, selectionStart: number = 0, selectionEnd: number = 0) => {
-    if (undoTimeoutRef.current) {
-      clearTimeout(undoTimeoutRef.current);
-    }
-    
-    undoTimeoutRef.current = setTimeout(() => {
-      pushToUndoStack(newText, selectionStart, selectionEnd);
-    }, 1000); // 1 second delay for typing
-  }, [pushToUndoStack]);
 
   // Keyboard shortcuts for undo/redo
   useEffect(() => {
@@ -134,14 +96,7 @@ export function App(): JSX.Element {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [undo, redo]);
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (undoTimeoutRef.current) {
-        clearTimeout(undoTimeoutRef.current);
-      }
-    };
-  }, []);
+  // no-op
 
   useEffect(() => {
     const saved = localStorage.getItem('notepad:text');
@@ -252,94 +207,26 @@ export function App(): JSX.Element {
   const theme = useMemo(() => createTheme({ palette: { mode } }), [mode]);
   const toggleTheme = () => setMode(prev => prev === 'light' ? 'dark' : 'light');
 
+  // CodeMirror is handled by CodeEditor component
+
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <CssBaseline />
         <AppBar config={menuConfig} color="default" disableRipple={true} sx={{ borderBottom: '1px solid #e5e5e5' }} themeMode={mode} onToggleTheme={toggleTheme} pasteReplaceRules={pasteReplaceRules} onChangePasteReplaceRules={setPasteReplaceRules} />
-        <Box sx={{ flex: 1, display: 'flex', overflow: 'auto', height: '100vh' }}>
-          <TextField
+        <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100vh', p: 1.5 }}>
+          <CodeEditor
+            ref={editorRef}
             value={text}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              const input = e.target as HTMLTextAreaElement;
-              const selectionStart = input.selectionStart || 0;
-              const selectionEnd = input.selectionEnd || 0;
-              
-              setText(newValue);
-              
-              // Use debounced approach for regular typing
-              // For significant changes (paste, large deletions), add immediately
-              if (Math.abs(newValue.length - text.length) > 5) {
-                // Clear any pending debounced push
-                if (undoTimeoutRef.current) {
-                  clearTimeout(undoTimeoutRef.current);
-                  undoTimeoutRef.current = null;
-                }
-                pushToUndoStack(newValue, selectionStart, selectionEnd);
-              } else {
-                debouncedPushToUndoStack(newValue, selectionStart, selectionEnd);
-              }
-            }}
-            onPaste={(e) => {
-              const clipboardData = e.clipboardData || (window as any).clipboardData;
-              const pastedText = clipboardData?.getData('Text');
-              if (typeof pastedText === 'string') {
-                const input = e.target as HTMLTextAreaElement;
-                const start = input.selectionStart ?? text.length;
-                const end = input.selectionEnd ?? text.length;
-                
-                if ((pasteReplaceRules ?? []).length === 0) {
-                  // Normal paste - add to undo stack
-                  const newValue = text.slice(0, start) + pastedText + text.slice(end);
-                  pushToUndoStack(newValue, start + pastedText.length, start + pastedText.length);
-                  e.preventDefault();
-                  return;
-                }
-                
-                // Paste with replacements
-                e.preventDefault();
-                let replaced = pastedText;
-                for (const rule of pasteReplaceRules) {
-                  if (!rule.find) continue;
-                  try {
-                    // Treat 'find' as a plain string, escape regex special chars
-                    const escaped = rule.find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const regex = new RegExp(escaped, 'g');
-                    replaced = replaced.replace(regex, rule.replace ?? '');
-                  } catch {}
-                }
-                const newValue = text.slice(0, start) + replaced + text.slice(end);
-                pushToUndoStack(newValue, start + replaced.length, start + replaced.length);
-              }
-            }}
-            placeholder="Start typing..."
-            multiline
-            fullWidth
-            spellCheck={spellCheckEnabled}
-            variant="outlined"
-            slotProps={{
-              input: {
-                ref: textFieldRef,
-                sx: {
-                  fontFamily: 'Consolas, Menlo, monospace',
-                  fontSize: 14,
-                },
-              },
-            }}
-            sx={{ 
-              height: '100vh', 
-              flex: 1, 
-              p: 1.5, 
-              '& .MuiOutlinedInput-notchedOutline': { border: 'none' }, 
-              '& .MuiOutlinedInput-root': { 
-                height: '100vh',
-                py: 0.6,
-                px: 1,
-                lineHeight: 1.16,
-                fontSize: '0.9em',
-                alignItems: 'flex-start'
-              } 
+            spellCheckEnabled={spellCheckEnabled}
+            onChange={(change) => {
+              setUndoStack(prev => {
+                const entry: HistoryEntry = { text: change.prevText, selectionStart: change.prevSelection.from, selectionEnd: change.prevSelection.to };
+                const next = [...prev, entry];
+                return next.length > 100 ? next.slice(1) : next;
+              });
+              setRedoStack([]);
+              setText(change.newText);
             }}
           />
         </Box>
