@@ -16,7 +16,9 @@ async function createMainWindow() {
     webPreferences: {
       preload: path.join(__dirname$1, "../preload/index.js"),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      webSecurity: true
+      // Enable web security
     }
   });
   mainWindow.webContents.setWindowOpenHandler(({ url: url2 }) => {
@@ -34,7 +36,6 @@ async function createMainWindow() {
   }
 }
 electron.app.whenReady().then(async () => {
-  electron.session.defaultSession.webSecurity = true;
   electron.session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
     callback(false);
   });

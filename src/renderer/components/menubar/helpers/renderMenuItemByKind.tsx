@@ -5,7 +5,10 @@
 
 import React from "react";
 import { MenuItems } from "../types";
-import { KindActionItem, KindCustomItem, KindDividerItem, CascadingSubmenu } from "./../components";
+import { KindActionItem } from "../components/KindActionItem";
+import { KindCustomItem } from "../components/KindCustomItem";
+import { KindDividerItem } from "../components/KindDividerItem";
+import { CascadingSubmenu } from "../components/KindSubmenuItem";
 
 export interface RenderItemOptions {
     item: MenuItems;

@@ -33,6 +33,8 @@ export const MenuBarButtonGroup: React.FC<MenuBarButtonGroupProps> = ({ children
 	const [activeKey, setActiveKey] = React.useState<string | null>(null);
 
 	const buttonRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
+	const cachedButtonRectsRef = React.useRef<Array<{ key: string; rect: DOMRect }>>([]);
+	const activeKeyRef = React.useRef<string | null>(null);
 
 	const registerButtonRef = React.useCallback((key: string, ref: HTMLButtonElement | null) => {
 		if (ref) buttonRefs.current.set(key, ref);
@@ -40,8 +42,15 @@ export const MenuBarButtonGroup: React.FC<MenuBarButtonGroupProps> = ({ children
 	}, []);
 
 	const onActivate = React.useCallback((key: string) => {
+		// Mark the group as active and set the starting active key
 		setIsActive(true);
 		setActiveKey(key);
+
+		// Cache button rects at activation start
+		const rects = Array.from(buttonRefs.current.entries())
+			.map(([k, element]) => (element ? { key: k, rect: element.getBoundingClientRect() } : null))
+			.filter((v): v is { key: string; rect: DOMRect } => Boolean(v));
+		cachedButtonRectsRef.current = rects;
 	}, []);
 
 	const onHoverNavigate = React.useCallback((key: string) => {
@@ -55,7 +64,11 @@ export const MenuBarButtonGroup: React.FC<MenuBarButtonGroupProps> = ({ children
 	}, []);
 
 	React.useEffect(() => {
-		if (!isActive) return;
+		if (!isActive) {
+			// Clear cache when session ends
+			cachedButtonRectsRef.current = [];
+			return;
+		}
 
 		// Use a throttled version to reduce performance impact
 		let animationFrameId: number | null = null;
@@ -66,21 +79,14 @@ export const MenuBarButtonGroup: React.FC<MenuBarButtonGroupProps> = ({ children
 			animationFrameId = requestAnimationFrame(() => {
 				animationFrameId = null;
 				
-				// Cache button rects to avoid repeated getBoundingClientRect calls
-				const buttonData = Array.from(buttonRefs.current.entries()).map(([key, element]) => ({
-					key,
-					rect: element ? element.getBoundingClientRect() : null
-				}));
-				
-				for (const { key, rect } of buttonData) {
-					if (!rect) continue;
+				for (const { key, rect } of cachedButtonRectsRef.current) {
 					if (
 						event.clientX >= rect.left &&
 						event.clientX <= rect.right &&
 						event.clientY >= rect.top &&
 						event.clientY <= rect.bottom
 					) {
-						if (key !== activeKey) {
+						if (key !== activeKeyRef.current) {
 							setActiveKey(key);
 						}
 						return;
@@ -95,8 +101,14 @@ export const MenuBarButtonGroup: React.FC<MenuBarButtonGroupProps> = ({ children
 			if (animationFrameId) {
 				cancelAnimationFrame(animationFrameId);
 			}
+			cachedButtonRectsRef.current = [];
 		};
-	}, [isActive, activeKey]);
+	}, [isActive]);
+
+	// Keep a live reference of the current activeKey for the mousemove handler
+	React.useEffect(() => {
+		activeKeyRef.current = activeKey;
+	}, [activeKey]);
 
 	const contextValue = React.useMemo(
 		() => ({ isActive, activeKey, registerButtonRef, onActivate, onHoverNavigate, onRootClose }),

@@ -91,8 +91,9 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
         <StyledMenu
             {...props}
             {...bindMenu(popupState)}
-            autoFocus={props?.autoFocus ?? false}
-            disableAutoFocusItem={props?.disableAutoFocusItem ?? true}
+            keepMounted
+            disableAutoFocusItem
+            autoFocus={false}
             PaperProps={{
                 ...(PaperProps ?? {}),
                 sx: paperSx,

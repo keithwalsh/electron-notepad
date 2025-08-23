@@ -19,7 +19,8 @@ async function createMainWindow() {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      webSecurity: true // Enable web security
     }
   });
 
@@ -45,7 +46,6 @@ async function createMainWindow() {
 
 app.whenReady().then(async () => {
   // Configure Content Security Policy for additional security
-  session.defaultSession.webSecurity = true;
   session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
     // Deny all permission requests for security
     callback(false);
