@@ -1,8 +1,6 @@
 import React from 'react';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import { ContentCopy, ContentCut, ContentPaste } from '@mui/icons-material';
-import { Menu, MenuItem, MenuList, SxProps, Theme, Typography } from '@mui/material';
+import { ListItemIcon, ListItemText, Menu, MenuItem, MenuList, SxProps, Theme, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
 export interface ContextMenuProps {
@@ -36,6 +34,11 @@ const iconContainerSx: SxProps<Theme> = {
   "& .MuiSvgIcon-root": { fontSize: "small" }
 };
 
+const menuSx: SxProps<Theme> = {
+  m: 0, p: 0,
+  "& .MuiList-padding": { paddingTop: 0, paddingBottom: 0 } 
+};
+
 const menuListSx: SxProps<Theme> = {
   m: 0, p: 0, minWidth: 220
 };
@@ -48,11 +51,11 @@ const menuItemShortcutSx = { ml: 4, color: textSecondary60, fontSize: '0.86rem' 
 const menuItemLabelSx = { color: textSecondary90 };
 
 
-  const open = Boolean(anchorPosition);
+const open = Boolean(anchorPosition);
 
-  const handleCopy = () => { onCopy(); onClose(); };
-  const handleCut = () => { onCut(); onClose(); };
-  const handlePaste = () => { onPaste(); onClose(); };
+const handleCopy = () => { onCopy(); onClose(); };
+const handleCut = () => { onCut(); onClose(); };
+const handlePaste = () => { onPaste(); onClose(); };
 
   return (
     <Menu
@@ -61,10 +64,8 @@ const menuItemLabelSx = { color: textSecondary90 };
       anchorReference="anchorPosition"
       anchorPosition={anchorPosition || undefined}
       keepMounted
-      sx={{
-        m: 0, p: 0,
-        "& .MuiList-padding": { paddingTop: 0, paddingBottom: 0 } 
-      }}
+      transitionDuration={0}
+      sx={menuSx}
     >
       <MenuList dense sx={menuListSx}>
       <MenuItem sx={menuItemSx} onClick={handleCopy} disabled={!canCopy} dense>

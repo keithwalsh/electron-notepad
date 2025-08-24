@@ -16,6 +16,7 @@ interface CodeEditorProps {
 
 export interface CodeEditorHandle {
   getSelection: () => { from: number; to: number };
+  setSelection: (from: number, to: number) => void;
   replaceAll: (text: string, selection?: { from: number; to: number }) => void;
   getText: () => string;
   focus: () => void;
@@ -103,6 +104,14 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
     getSelection: () => {
       const sel = viewRef.current?.state.selection.main;
       return { from: sel?.from ?? 0, to: sel?.to ?? 0 };
+    },
+    setSelection: (from: number, to: number) => {
+      if (!viewRef.current) return;
+      const view = viewRef.current;
+      view.dispatch({
+        selection: { anchor: from, head: to },
+        effects: EditorView.scrollIntoView(from)
+      });
     },
     replaceAll: (text: string, selection?: { from: number; to: number }) => {
       if (!viewRef.current) return;

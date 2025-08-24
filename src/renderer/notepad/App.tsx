@@ -40,6 +40,30 @@ export function App(): JSX.Element {
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [contextAnchor, setContextAnchor] = useState<{ top: number; left: number } | null>(null);
   const [canPaste, setCanPaste] = useState<boolean>(false);
+  const [contextSelection, setContextSelection] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
+  // Clipboard helpers with Electron and Navigator fallbacks
+  const readClipboardTextSafe = async (): Promise<string> => {
+    try {
+      const v = await window.electronAPI?.readClipboardText?.();
+      if (typeof v === 'string') return v;
+    } catch {}
+    try {
+      const v = await navigator.clipboard.readText();
+      if (typeof v === 'string') return v;
+    } catch {}
+    return '';
+  };
+
+  const writeClipboardTextSafe = async (textToWrite: string): Promise<void> => {
+    try {
+      await window.electronAPI?.writeClipboardText?.(textToWrite);
+      return;
+    } catch {}
+    try {
+      await navigator.clipboard.writeText(textToWrite);
+    } catch {}
+  };
+
 
   // Undo functionality
   const undo = useCallback(() => {
@@ -214,12 +238,13 @@ export function App(): JSX.Element {
 
   const openContextMenu = async (e: React.MouseEvent) => {
     e.preventDefault();
+    // Capture selection before focus changes to the menu
     try {
-      const clip = await window.electronAPI?.readClipboardText?.();
-      setCanPaste(Boolean(clip && clip.length > 0));
-    } catch {
-      setCanPaste(false);
-    }
+      const sel = getSelectionRange();
+      setContextSelection(sel);
+    } catch {}
+    const clip = await readClipboardTextSafe();
+    setCanPaste(Boolean(clip && clip.length > 0));
     setContextAnchor({ top: e.clientY, left: e.clientX });
   };
 
@@ -233,35 +258,31 @@ export function App(): JSX.Element {
   };
 
   const doCopy = async () => {
-    const { start, end } = getSelectionRange();
+    const { start, end } = contextSelection;
     if (start === end) return;
-    const selectionText = text.slice(start, end);
-    try { await window.electronAPI?.writeClipboardText?.(selectionText); } catch {}
+    editorRef.current?.setSelection(start, end);
+    editorRef.current?.focus();
+    try { document.execCommand?.('copy'); } catch {}
   };
 
   const doCut = async () => {
-    const { start, end } = getSelectionRange();
+    const { start, end } = contextSelection;
     if (start === end) return;
-    const selectionText = text.slice(start, end);
-    try { await window.electronAPI?.writeClipboardText?.(selectionText); } catch {}
-    const newText = text.slice(0, start) + text.slice(end);
-    setUndoStack(prev => [...prev, { text, selectionStart: start, selectionEnd: end }]);
-    setRedoStack([]);
-    setText(newText);
-    setTimeout(() => {
-      editorRef.current?.replaceAll(newText, { from: start, to: start });
-      editorRef.current?.focus();
-    }, 0);
+    editorRef.current?.setSelection(start, end);
+    editorRef.current?.focus();
+    try { document.execCommand?.('cut'); } catch {}
   };
 
   const doPaste = async () => {
-    let clip = '';
-    try { clip = (await window.electronAPI?.readClipboardText?.()) || ''; } catch {}
+    const { start, end } = contextSelection;
+    editorRef.current?.setSelection(start, end);
+    editorRef.current?.focus();
+    const clip = await readClipboardTextSafe();
     if (!clip) return;
-    const { start, end } = getSelectionRange();
-    const newText = text.slice(0, start) + clip + text.slice(end);
+    const currentText = editorRef.current?.getText() ?? text;
+    const newText = currentText.slice(0, start) + clip + currentText.slice(end);
     const newPos = start + clip.length;
-    setUndoStack(prev => [...prev, { text, selectionStart: start, selectionEnd: end }]);
+    setUndoStack(prev => [...prev, { text: currentText, selectionStart: start, selectionEnd: end }]);
     setRedoStack([]);
     setText(newText);
     setTimeout(() => {
@@ -275,7 +296,15 @@ export function App(): JSX.Element {
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <CssBaseline />
         <AppBar config={menuConfig} color="default" disableRipple={true} sx={{ borderBottom: '1px solid #e5e5e5' }} themeMode={mode} onToggleTheme={toggleTheme} pasteReplaceRules={pasteReplaceRules} onChangePasteReplaceRules={setPasteReplaceRules} />
-        <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100vh', p: 1.5 }} onContextMenu={openContextMenu}>
+        <Box
+          sx={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100vh', p: 1.5 }}
+          onMouseDownCapture={(e) => {
+            if (e.button === 2) {
+              try { setContextSelection(getSelectionRange()); } catch {}
+            }
+          }}
+          onContextMenu={openContextMenu}
+        >
           <CodeEditor
             ref={editorRef}
             value={text}
@@ -294,9 +323,9 @@ export function App(): JSX.Element {
         <ContextMenu
           anchorPosition={contextAnchor}
           onClose={closeContextMenu}
-          canCopy={(() => { const { start, end } = getSelectionRange(); return end > start; })()}
-          canCut={(() => { const { start, end } = getSelectionRange(); return end > start; })()}
-          canPaste={canPaste}
+          canCopy={contextSelection.end > contextSelection.start}
+          canCut={contextSelection.end > contextSelection.start}
+          canPaste={true}
           onCopy={doCopy}
           onCut={doCut}
           onPaste={doPaste}
