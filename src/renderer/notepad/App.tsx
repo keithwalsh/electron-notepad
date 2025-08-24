@@ -6,6 +6,7 @@ import { CodeEditor, CodeEditorHandle } from '../components/CodeEditor';
 import { AppBar } from '../components/AppBar';
 import { StatusBar } from '../components/StatusBar';
 import { createMenuConfig } from './config/menuConfig';
+import { ContextMenu } from '../components/ContextMenu';
 
 interface HistoryEntry {
   text: string;
@@ -37,6 +38,8 @@ export function App(): JSX.Element {
     return saved !== null ? saved === 'true' : true;
   });
   const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [contextAnchor, setContextAnchor] = useState<{ top: number; left: number } | null>(null);
+  const [canPaste, setCanPaste] = useState<boolean>(false);
 
   // Undo functionality
   const undo = useCallback(() => {
@@ -209,12 +212,70 @@ export function App(): JSX.Element {
 
   // CodeMirror is handled by CodeEditor component
 
+  const openContextMenu = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      const clip = await window.electronAPI?.readClipboardText?.();
+      setCanPaste(Boolean(clip && clip.length > 0));
+    } catch {
+      setCanPaste(false);
+    }
+    setContextAnchor({ top: e.clientY, left: e.clientX });
+  };
+
+  const closeContextMenu = () => setContextAnchor(null);
+
+  const getSelectionRange = () => {
+    const sel = editorRef.current?.getSelection() ?? { from: 0, to: 0 };
+    const start = Math.min(sel.from, sel.to);
+    const end = Math.max(sel.from, sel.to);
+    return { start, end };
+  };
+
+  const doCopy = async () => {
+    const { start, end } = getSelectionRange();
+    if (start === end) return;
+    const selectionText = text.slice(start, end);
+    try { await window.electronAPI?.writeClipboardText?.(selectionText); } catch {}
+  };
+
+  const doCut = async () => {
+    const { start, end } = getSelectionRange();
+    if (start === end) return;
+    const selectionText = text.slice(start, end);
+    try { await window.electronAPI?.writeClipboardText?.(selectionText); } catch {}
+    const newText = text.slice(0, start) + text.slice(end);
+    setUndoStack(prev => [...prev, { text, selectionStart: start, selectionEnd: end }]);
+    setRedoStack([]);
+    setText(newText);
+    setTimeout(() => {
+      editorRef.current?.replaceAll(newText, { from: start, to: start });
+      editorRef.current?.focus();
+    }, 0);
+  };
+
+  const doPaste = async () => {
+    let clip = '';
+    try { clip = (await window.electronAPI?.readClipboardText?.()) || ''; } catch {}
+    if (!clip) return;
+    const { start, end } = getSelectionRange();
+    const newText = text.slice(0, start) + clip + text.slice(end);
+    const newPos = start + clip.length;
+    setUndoStack(prev => [...prev, { text, selectionStart: start, selectionEnd: end }]);
+    setRedoStack([]);
+    setText(newText);
+    setTimeout(() => {
+      editorRef.current?.replaceAll(newText, { from: newPos, to: newPos });
+      editorRef.current?.focus();
+    }, 0);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <CssBaseline />
         <AppBar config={menuConfig} color="default" disableRipple={true} sx={{ borderBottom: '1px solid #e5e5e5' }} themeMode={mode} onToggleTheme={toggleTheme} pasteReplaceRules={pasteReplaceRules} onChangePasteReplaceRules={setPasteReplaceRules} />
-        <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100vh', p: 1.5 }}>
+        <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', height: '100vh', p: 1.5 }} onContextMenu={openContextMenu}>
           <CodeEditor
             ref={editorRef}
             value={text}
@@ -230,6 +291,16 @@ export function App(): JSX.Element {
             }}
           />
         </Box>
+        <ContextMenu
+          anchorPosition={contextAnchor}
+          onClose={closeContextMenu}
+          canCopy={(() => { const { start, end } = getSelectionRange(); return end > start; })()}
+          canCut={(() => { const { start, end } = getSelectionRange(); return end > start; })()}
+          canPaste={canPaste}
+          onCopy={doCopy}
+          onCut={doCut}
+          onPaste={doPaste}
+        />
         {statusBarVisible && <StatusBar filePath={filePath} charCount={charCount} lineCount={lineCount} text={text} zoomPercentage={zoomLevel} />}
       </Box>
     </ThemeProvider>

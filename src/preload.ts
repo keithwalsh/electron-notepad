@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, clipboard } from 'electron';
 
 contextBridge.exposeInMainWorld('app', {
   name: 'Electron Notepad'
@@ -30,6 +30,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openFile: () => ipcRenderer.invoke('file:open'),
   saveFile: (args: { path?: string; content: string }) => ipcRenderer.invoke('file:save', args),
   saveFileAs: (args: { content: string }) => ipcRenderer.invoke('file:save-as', args)
+  ,
+  readClipboardText: () => Promise.resolve(clipboard.readText()),
+  writeClipboardText: (text: string) => Promise.resolve(clipboard.writeText(text))
 });
 
 export {};

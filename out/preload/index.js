@@ -28,6 +28,8 @@ electron.contextBridge.exposeInMainWorld("electronAPI", {
   },
   openFile: () => electron.ipcRenderer.invoke("file:open"),
   saveFile: (args) => electron.ipcRenderer.invoke("file:save", args),
-  saveFileAs: (args) => electron.ipcRenderer.invoke("file:save-as", args)
+  saveFileAs: (args) => electron.ipcRenderer.invoke("file:save-as", args),
+  readClipboardText: () => Promise.resolve(electron.clipboard.readText()),
+  writeClipboardText: (text) => Promise.resolve(electron.clipboard.writeText(text))
 });
 //# sourceMappingURL=index.js.map

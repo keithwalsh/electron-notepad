@@ -16,6 +16,8 @@ export interface IElectronAPI {
   openFile: () => Promise<{ canceled: boolean; path?: string; content?: string }>;
   saveFile: (args: { path?: string; content: string }) => Promise<{ canceled: boolean; path?: string }>;
   saveFileAs: (args: { content: string }) => Promise<{ canceled: boolean; path?: string }>;
+  readClipboardText: () => Promise<string>;
+  writeClipboardText: (text: string) => Promise<void>;
 }
 
 declare global {
