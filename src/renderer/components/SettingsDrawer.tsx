@@ -1,10 +1,11 @@
 import React from 'react';
-import { Box, Drawer, Divider, Typography, TextField as MUITextField, Button, IconButton } from '@mui/material';
+import { Box, Drawer, Divider, Typography, TextField as MUITextField, Button, IconButton, Checkbox, FormControlLabel } from '@mui/material';
 import { Add, Close } from '@mui/icons-material';
 
 export interface PasteReplaceRule {
   find: string;
   replace: string;
+  isRegex?: boolean;
 }
 
 interface SettingsDrawerProps {
@@ -28,34 +29,53 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Typography variant="subtitle2">Paste replacements</Typography>
           {(pasteReplaceRules ?? []).map((rule, idx) => (
-            <Box key={idx} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <MUITextField
-                size="small"
-                placeholder="Replace"
-                value={rule.find}
-                onChange={(e) => {
-                  const next = [...(pasteReplaceRules ?? [])];
-                  next[idx] = { ...next[idx], find: e.target.value };
+            <Box key={idx} sx={{ display: 'flex', flexDirection: 'column', gap: 0, px: 1, paddingTop: 1, border: 1, borderColor: 'divider', borderRadius: 1,}}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <MUITextField
+                  size="small"
+                  placeholder="Find (text or regex)"
+                  value={rule.find}
+                  onChange={(e) => {
+                    const next = [...(pasteReplaceRules ?? [])];
+                    next[idx] = { ...next[idx], find: e.target.value };
+                    onChangePasteReplaceRules?.(next);
+                  }}
+                  sx={{ flex: 1, "& .MuiInputBase-input": { height: '0.7rem', fontSize: '0.7rem' }  }}
+                />
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>➜</Typography>
+                <MUITextField
+                  size="small"
+                  placeholder="Replace with"
+                  value={rule.replace}
+                  onChange={(e) => {
+                    const next = [...(pasteReplaceRules ?? [])];
+                    next[idx] = { ...next[idx], replace: e.target.value };
+                    onChangePasteReplaceRules?.(next);
+                  }}
+                  sx={{ flex: 1, "& .MuiInputBase-input": { height: '0.7rem', fontSize: '0.7rem' } }}
+                />
+                <IconButton size="small" onClick={() => {
+                  const next = (pasteReplaceRules ?? []).filter((_, i) => i !== idx);
                   onChangePasteReplaceRules?.(next);
-                }}
+                }} aria-label="remove-rule">
+                  <Close fontSize="small" />
+                </IconButton>
+              </Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={rule.isRegex ?? false}
+                    onChange={(e) => {
+                      const next = [...(pasteReplaceRules ?? [])];
+                      next[idx] = { ...next[idx], isRegex: e.target.checked };
+                      onChangePasteReplaceRules?.(next);
+                    }}
+                  />
+                }
+                label="Use regex"
+                sx={{ p: 0, m: 0, "& .MuiFormControlLabel-label": { fontSize: '0.7rem' }, "& .MuiCheckbox-root": { p: 0.6 } }}
               />
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>➜</Typography>
-              <MUITextField
-                size="small"
-                placeholder="With"
-                value={rule.replace}
-                onChange={(e) => {
-                  const next = [...(pasteReplaceRules ?? [])];
-                  next[idx] = { ...next[idx], replace: e.target.value };
-                  onChangePasteReplaceRules?.(next);
-                }}
-              />
-              <IconButton size="small" onClick={() => {
-                const next = (pasteReplaceRules ?? []).filter((_, i) => i !== idx);
-                onChangePasteReplaceRules?.(next);
-              }} aria-label="remove-rule">
-                <Close fontSize="small" />
-              </IconButton>
             </Box>
           ))}
           <Button variant="outlined" size="small" startIcon={<Add />} onClick={() => {

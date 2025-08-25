@@ -275,41 +275,44 @@ export function App(): JSX.Element {
 
   const doPaste = async () => {
     const { start, end } = contextSelection;
-    
-    // Try simple approach first (similar to main menu)
     try {
       editorRef.current?.setSelection(start, end);
       editorRef.current?.focus();
-      
-      // Get clipboard content
+      if (document.execCommand?.('paste')) return;
+    } catch {}
+
+    try {
       const clip = await readClipboardTextSafe();
-      if (!clip) {
-        // Fallback to document.execCommand if clipboard reading fails
-        document.execCommand?.('paste');
-        return;
-      }
-      
-      // Manual paste with proper cursor positioning
+      if (!clip) return;
+      const applyRules = (input: string): string => {
+        let output = input;
+        for (const rule of pasteReplaceRules) {
+          if (!rule || !rule.find) continue;
+          const isRegex = (rule as any).isRegex;
+          if (isRegex) {
+            try {
+              const rx = new RegExp(rule.find, 'g');
+              output = output.replace(rx, rule.replace ?? '');
+            } catch {}
+          } else {
+            const escaped = rule.find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            output = output.replace(new RegExp(escaped, 'g'), rule.replace ?? '');
+          }
+        }
+        return output;
+      };
+      const processed = applyRules(clip);
       const currentText = editorRef.current?.getText() ?? text;
-      const newText = currentText.slice(0, start) + clip + currentText.slice(end);
-      const newPos = start + clip.length;
-      
-      // Update undo stack
+      const newText = currentText.slice(0, start) + processed + currentText.slice(end);
+      const newPos = start + processed.length;
       setUndoStack(prev => [...prev, { text: currentText, selectionStart: start, selectionEnd: end }]);
       setRedoStack([]);
       setText(newText);
-      
-      // Set cursor position at end of pasted content
       setTimeout(() => {
         editorRef.current?.replaceAll(newText, { from: newPos, to: newPos });
         editorRef.current?.focus();
       }, 0);
-    } catch {
-      // Final fallback to simple paste
-      try { 
-        document.execCommand?.('paste'); 
-      } catch {}
-    }
+    } catch {}
   };
 
   return (
@@ -331,6 +334,7 @@ export function App(): JSX.Element {
             value={text}
             spellCheckEnabled={spellCheckEnabled}
             themeMode={mode}
+            pasteReplaceRules={pasteReplaceRules}
             onChange={(change) => {
               setUndoStack(prev => {
                 const entry: HistoryEntry = { text: change.prevText, selectionStart: change.prevSelection.from, selectionEnd: change.prevSelection.to };
@@ -347,7 +351,7 @@ export function App(): JSX.Element {
           onClose={closeContextMenu}
           canCopy={contextSelection.end > contextSelection.start}
           canCut={contextSelection.end > contextSelection.start}
-          canPaste={true}
+          canPaste={canPaste}
           onCopy={doCopy}
           onCut={doCut}
           onPaste={doPaste}

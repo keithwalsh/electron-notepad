@@ -1,2 +1,35 @@
-"use strict";const e=require("electron");e.contextBridge.exposeInMainWorld("app",{name:"Electron Notepad"});e.contextBridge.exposeInMainWorld("electronAPI",{minimizeWindow:()=>e.ipcRenderer.invoke("window:minimize"),toggleMaximizeWindow:()=>e.ipcRenderer.invoke("window:toggle-maximize"),closeWindow:()=>e.ipcRenderer.invoke("window:close"),reload:()=>e.ipcRenderer.invoke("window:reload"),forceReload:()=>e.ipcRenderer.invoke("window:force-reload"),toggleDevTools:()=>e.ipcRenderer.invoke("window:toggle-devtools"),isDevToolsOpen:()=>e.ipcRenderer.invoke("window:is-devtools-open"),onDevToolsStateChanged:o=>{const n=(r,i)=>o(i);return e.ipcRenderer.on("devtools-state-changed",n),()=>e.ipcRenderer.removeListener("devtools-state-changed",n)},toggleFullscreen:()=>e.ipcRenderer.invoke("window:toggle-fullscreen"),zoomReset:()=>e.ipcRenderer.invoke("window:zoom-reset"),zoomIn:()=>e.ipcRenderer.invoke("window:zoom-in"),zoomOut:()=>e.ipcRenderer.invoke("window:zoom-out"),getZoomLevel:()=>e.ipcRenderer.invoke("window:get-zoom-level"),onZoomChanged:o=>{const n=(r,i)=>o(i);return e.ipcRenderer.on("zoom-changed",n),()=>e.ipcRenderer.removeListener("zoom-changed",n)},openFile:()=>e.ipcRenderer.invoke("file:open"),saveFile:o=>e.ipcRenderer.invoke("file:save",o),saveFileAs:o=>e.ipcRenderer.invoke("file:save-as",o),readClipboardText:()=>Promise.resolve(e.clipboard.readText()),writeClipboardText:o=>Promise.resolve(e.clipboard.writeText(o))});
+"use strict";
+const electron = require("electron");
+electron.contextBridge.exposeInMainWorld("app", {
+  name: "Electron Notepad"
+});
+electron.contextBridge.exposeInMainWorld("electronAPI", {
+  minimizeWindow: () => electron.ipcRenderer.invoke("window:minimize"),
+  toggleMaximizeWindow: () => electron.ipcRenderer.invoke("window:toggle-maximize"),
+  closeWindow: () => electron.ipcRenderer.invoke("window:close"),
+  reload: () => electron.ipcRenderer.invoke("window:reload"),
+  forceReload: () => electron.ipcRenderer.invoke("window:force-reload"),
+  toggleDevTools: () => electron.ipcRenderer.invoke("window:toggle-devtools"),
+  isDevToolsOpen: () => electron.ipcRenderer.invoke("window:is-devtools-open"),
+  onDevToolsStateChanged: (callback) => {
+    const listener = (_event, open) => callback(open);
+    electron.ipcRenderer.on("devtools-state-changed", listener);
+    return () => electron.ipcRenderer.removeListener("devtools-state-changed", listener);
+  },
+  toggleFullscreen: () => electron.ipcRenderer.invoke("window:toggle-fullscreen"),
+  zoomReset: () => electron.ipcRenderer.invoke("window:zoom-reset"),
+  zoomIn: () => electron.ipcRenderer.invoke("window:zoom-in"),
+  zoomOut: () => electron.ipcRenderer.invoke("window:zoom-out"),
+  getZoomLevel: () => electron.ipcRenderer.invoke("window:get-zoom-level"),
+  onZoomChanged: (callback) => {
+    const listener = (_event, zoomFactor) => callback(zoomFactor);
+    electron.ipcRenderer.on("zoom-changed", listener);
+    return () => electron.ipcRenderer.removeListener("zoom-changed", listener);
+  },
+  openFile: () => electron.ipcRenderer.invoke("file:open"),
+  saveFile: (args) => electron.ipcRenderer.invoke("file:save", args),
+  saveFileAs: (args) => electron.ipcRenderer.invoke("file:save-as", args),
+  readClipboardText: () => Promise.resolve(electron.clipboard.readText()),
+  writeClipboardText: (text) => Promise.resolve(electron.clipboard.writeText(text))
+});
 //# sourceMappingURL=index.js.map

@@ -8,11 +8,18 @@ export interface CodeEditorChange {
   prevSelection: { from: number; to: number };
 }
 
+interface PasteReplaceRule {
+  find: string;
+  replace: string;
+  isRegex?: boolean;
+}
+
 interface CodeEditorProps {
   value: string;
   spellCheckEnabled: boolean;
   themeMode: 'light' | 'dark';
   onChange: (change: CodeEditorChange) => void;
+  pasteReplaceRules?: PasteReplaceRule[];
 }
 
 export interface CodeEditorHandle {
@@ -24,7 +31,7 @@ export interface CodeEditorHandle {
 }
 
 export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEditor(
-  { value, spellCheckEnabled, themeMode, onChange },
+  { value, spellCheckEnabled, themeMode, onChange, pasteReplaceRules },
   ref
 ) {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -32,6 +39,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
   const spellcheckCompartmentRef = useRef(new Compartment());
   const suppressHistoryRef = useRef<boolean>(false);
   const cursorThemeCompartmentRef = useRef(new Compartment());
+  const pasteHandlerCompartmentRef = useRef(new Compartment());
 
   // Initialize editor
   useEffect(() => {
@@ -57,6 +65,48 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
               },
               '.cm-content': {
                 caretColor: `${isDark ? '#fff' : '#000'} !important`
+              }
+            })
+          ),
+          pasteHandlerCompartmentRef.current.of(
+            EditorView.domEventHandlers({
+              paste: (event, view) => {
+                try {
+                  const data = event.clipboardData?.getData('text/plain') ?? '';
+                  if (typeof data !== 'string') return false;
+                  const applyRules = (input: string): string => {
+                    let output = input;
+                    for (const rule of (pasteReplaceRules ?? [])) {
+                      if (!rule || !rule.find) continue;
+                      if (rule.isRegex) {
+                        try {
+                          const rx = new RegExp(rule.find, 'g');
+                          output = output.replace(rx, rule.replace ?? '');
+                        } catch {
+                          // ignore invalid regex
+                        }
+                      } else {
+                        // Escape special regex chars in plain string find
+                        const escaped = rule.find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        output = output.replace(new RegExp(escaped, 'g'), rule.replace ?? '');
+                      }
+                    }
+                    return output;
+                  };
+                  const processed = applyRules(data);
+                  // Prevent default paste; insert processed text at current selection
+                  event.preventDefault();
+                  const sel = view.state.selection.main;
+                  const from = Math.min(sel.from, sel.to);
+                  const to = Math.max(sel.from, sel.to);
+                  view.dispatch({
+                    changes: { from, to, insert: processed },
+                    selection: { anchor: from + processed.length }
+                  });
+                  return true;
+                } catch {
+                  return false;
+                }
               }
             })
           ),
@@ -127,6 +177,52 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
       )
     });
   }, [themeMode]);
+
+  // Reconfigure paste handler when rules change
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    view.dispatch({
+      effects: pasteHandlerCompartmentRef.current.reconfigure(
+        EditorView.domEventHandlers({
+          paste: (event, view) => {
+            try {
+              const data = event.clipboardData?.getData('text/plain') ?? '';
+              if (typeof data !== 'string') return false;
+              const applyRules = (input: string): string => {
+                let output = input;
+                for (const rule of (pasteReplaceRules ?? [])) {
+                  if (!rule || !rule.find) continue;
+                  if (rule.isRegex) {
+                    try {
+                      const rx = new RegExp(rule.find, 'g');
+                      output = output.replace(rx, rule.replace ?? '');
+                    } catch {}
+                  } else {
+                    const escaped = rule.find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    output = output.replace(new RegExp(escaped, 'g'), rule.replace ?? '');
+                  }
+                }
+                return output;
+              };
+              const processed = applyRules(data);
+              event.preventDefault();
+              const sel = view.state.selection.main;
+              const from = Math.min(sel.from, sel.to);
+              const to = Math.max(sel.from, sel.to);
+              view.dispatch({
+                changes: { from, to, insert: processed },
+                selection: { anchor: from + processed.length }
+              });
+              return true;
+            } catch {
+              return false;
+            }
+          }
+        })
+      )
+    });
+  }, [pasteReplaceRules]);
 
   // Sync external value changes
   useEffect(() => {
