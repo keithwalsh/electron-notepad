@@ -309,6 +309,7 @@ export function App(): JSX.Element {
             ref={editorRef}
             value={text}
             spellCheckEnabled={spellCheckEnabled}
+            themeMode={mode}
             onChange={(change) => {
               setUndoStack(prev => {
                 const entry: HistoryEntry = { text: change.prevText, selectionStart: change.prevSelection.from, selectionEnd: change.prevSelection.to };

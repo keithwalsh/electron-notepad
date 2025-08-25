@@ -11,6 +11,7 @@ export interface CodeEditorChange {
 interface CodeEditorProps {
   value: string;
   spellCheckEnabled: boolean;
+  themeMode: 'light' | 'dark';
   onChange: (change: CodeEditorChange) => void;
 }
 
@@ -23,17 +24,20 @@ export interface CodeEditorHandle {
 }
 
 export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEditor(
-  { value, spellCheckEnabled, onChange },
+  { value, spellCheckEnabled, themeMode, onChange },
   ref
 ) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const spellcheckCompartmentRef = useRef(new Compartment());
   const suppressHistoryRef = useRef<boolean>(false);
+  const cursorThemeCompartmentRef = useRef(new Compartment());
 
   // Initialize editor
   useEffect(() => {
     if (!hostRef.current) return;
+    const isDark = themeMode === 'dark';
+
     const view = new EditorView({
       state: EditorState.create({
         doc: value,
@@ -41,6 +45,20 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
           EditorView.lineWrapping,
           spellcheckCompartmentRef.current.of(
             EditorView.contentAttributes.of({ spellcheck: spellCheckEnabled ? 'true' : 'false' })
+          ),
+          cursorThemeCompartmentRef.current.of(
+            EditorView.theme({
+              '.cm-cursor, .cm-dropCursor': { 
+                borderLeftColor: `${isDark ? '#fff' : '#000'} !important`,
+                borderColor: `${isDark ? '#fff' : '#000'} !important`
+              },
+              '&.cm-focused .cm-cursor': {
+                borderLeftColor: `${isDark ? '#fff' : '#000'} !important`
+              },
+              '.cm-content': {
+                caretColor: `${isDark ? '#fff' : '#000'} !important`
+              }
+            })
           ),
           EditorView.theme({
             '&': { height: '100%' },
@@ -74,7 +92,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
       view.destroy();
       viewRef.current = null;
     };
-  }, []);
+  }, [themeMode]);
 
   // Reconfigure spellcheck attribute when toggled
   useEffect(() => {
@@ -85,6 +103,30 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
       )
     });
   }, [spellCheckEnabled]);
+
+  // Update cursor color when theme mode changes
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+
+    const isDark = themeMode === 'dark';
+    view.dispatch({
+      effects: cursorThemeCompartmentRef.current.reconfigure(
+        EditorView.theme({
+          '.cm-cursor, .cm-dropCursor': { 
+            borderLeftColor: `${isDark ? '#fff' : '#000'} !important`,
+            borderColor: `${isDark ? '#fff' : '#000'} !important`
+          },
+          '&.cm-focused .cm-cursor': {
+            borderLeftColor: `${isDark ? '#fff' : '#000'} !important`
+          },
+          '.cm-content': {
+            caretColor: `${isDark ? '#fff' : '#000'} !important`
+          }
+        })
+      )
+    });
+  }, [themeMode]);
 
   // Sync external value changes
   useEffect(() => {
