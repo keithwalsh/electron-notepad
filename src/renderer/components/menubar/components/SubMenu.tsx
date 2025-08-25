@@ -5,7 +5,7 @@
 
 import React, { useContext, useMemo } from "react";
 import { MenuList } from "@mui/material";
-import { styled, SxProps, Theme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { bindMenu, PopupState } from "material-ui-popup-state/hooks";
 import HoverMenuImport from "material-ui-popup-state/HoverMenu";
 import { MenuItems } from "../types";
@@ -38,24 +38,14 @@ export interface SubMenuProps {
         vertical: "top" | "center" | "bottom";
         horizontal: "left" | "center" | "right";
     };
-    PaperProps?: {
-        className?: string;
-        sx?: SxProps<Theme>;
-        [key: string]: any;
-    };
-    slotProps?: {
-        [key: string]: any;
-    }
-    [key: string]: any;
 }
 
 const SubMenuComponent: React.FC<SubMenuProps> = ({ 
     menuItems, 
     popupState,
     useHover = true,
-    PaperProps = {},
-    slotProps,
-    ...props 
+    anchorOrigin,
+    transformOrigin,
 }) => {
     const { rootPopupState } = useContext(CascadingContext);
     
@@ -65,17 +55,6 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
             parentPopupState: popupState,
         }),
         [rootPopupState, popupState]
-    );
-
-    const paperSx: SxProps<Theme> = useMemo(
-        () => ({
-            backgroundColor: "background.paper",
-            "& .MuiPaper-root": {
-                backgroundColor: "background.paper",
-            },
-            ...(PaperProps?.sx ?? {})
-        }),
-        [PaperProps?.sx]
     );
 
     const menuContent = useMemo(() => (
@@ -91,15 +70,13 @@ const SubMenuComponent: React.FC<SubMenuProps> = ({
 
     return (
         <StyledMenu
-            {...props}
             {...bindMenu(popupState)}
+            anchorOrigin={anchorOrigin}
+            transformOrigin={transformOrigin}
             keepMounted
             disableAutoFocusItem
             autoFocus={false}
-            PaperProps={{
-                ...(PaperProps ?? {}),
-                sx: paperSx,
-            }}
+            transitionDuration={0}
         >
             {menuContent}
         </StyledMenu>
