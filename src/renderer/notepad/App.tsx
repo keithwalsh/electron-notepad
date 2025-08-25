@@ -275,20 +275,41 @@ export function App(): JSX.Element {
 
   const doPaste = async () => {
     const { start, end } = contextSelection;
-    editorRef.current?.setSelection(start, end);
-    editorRef.current?.focus();
-    const clip = await readClipboardTextSafe();
-    if (!clip) return;
-    const currentText = editorRef.current?.getText() ?? text;
-    const newText = currentText.slice(0, start) + clip + currentText.slice(end);
-    const newPos = start + clip.length;
-    setUndoStack(prev => [...prev, { text: currentText, selectionStart: start, selectionEnd: end }]);
-    setRedoStack([]);
-    setText(newText);
-    setTimeout(() => {
-      editorRef.current?.replaceAll(newText, { from: newPos, to: newPos });
+    
+    // Try simple approach first (similar to main menu)
+    try {
+      editorRef.current?.setSelection(start, end);
       editorRef.current?.focus();
-    }, 0);
+      
+      // Get clipboard content
+      const clip = await readClipboardTextSafe();
+      if (!clip) {
+        // Fallback to document.execCommand if clipboard reading fails
+        document.execCommand?.('paste');
+        return;
+      }
+      
+      // Manual paste with proper cursor positioning
+      const currentText = editorRef.current?.getText() ?? text;
+      const newText = currentText.slice(0, start) + clip + currentText.slice(end);
+      const newPos = start + clip.length;
+      
+      // Update undo stack
+      setUndoStack(prev => [...prev, { text: currentText, selectionStart: start, selectionEnd: end }]);
+      setRedoStack([]);
+      setText(newText);
+      
+      // Set cursor position at end of pasted content
+      setTimeout(() => {
+        editorRef.current?.replaceAll(newText, { from: newPos, to: newPos });
+        editorRef.current?.focus();
+      }, 0);
+    } catch {
+      // Final fallback to simple paste
+      try { 
+        document.execCommand?.('paste'); 
+      } catch {}
+    }
   };
 
   return (
