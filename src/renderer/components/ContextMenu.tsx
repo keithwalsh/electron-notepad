@@ -36,7 +36,12 @@ const iconContainerSx: SxProps<Theme> = {
 
 const menuSx: SxProps<Theme> = {
   m: 0, p: 0,
-  "& .MuiList-padding": { paddingTop: 0, paddingBottom: 0 } 
+  "& .MuiList-padding": { paddingTop: 0, paddingBottom: 0 },
+  "& .MuiPaper-root": { // Remove default browser focus outline
+    outline: "none",
+    border: "none",
+    boxShadow: (theme) => theme.shadows[8]
+  }
 };
 
 const menuListSx: SxProps<Theme> = {
