@@ -26,6 +26,7 @@ export interface CodeEditorHandle {
   getSelection: () => { from: number; to: number };
   setSelection: (from: number, to: number) => void;
   replaceAll: (text: string, selection?: { from: number; to: number }) => void;
+  insertText: (text: string, from: number, to: number) => void;
   getText: () => string;
   focus: () => void;
 }
@@ -38,6 +39,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
   const viewRef = useRef<EditorView | null>(null);
   const spellcheckCompartmentRef = useRef(new Compartment());
   const suppressHistoryRef = useRef<boolean>(false);
+  const suppressValueSyncRef = useRef<boolean>(false);
   const cursorThemeCompartmentRef = useRef(new Compartment());
   const pasteHandlerCompartmentRef = useRef(new Compartment());
 
@@ -227,7 +229,7 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
   // Sync external value changes
   useEffect(() => {
     const view = viewRef.current;
-    if (!view) return;
+    if (!view || suppressValueSyncRef.current) return;
     const current = view.state.doc.toString();
     if (current !== value) {
       suppressHistoryRef.current = true;
@@ -261,6 +263,19 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
         effects: EditorView.scrollIntoView(selection ? selection.from : 0)
       });
       suppressHistoryRef.current = false;
+    },
+    insertText: (text: string, from: number, to: number) => {
+      if (!viewRef.current) return;
+      const view = viewRef.current;
+      suppressValueSyncRef.current = true;
+      view.dispatch({
+        changes: { from, to, insert: text },
+        selection: { anchor: from + text.length },
+        effects: EditorView.scrollIntoView(from + text.length)
+      });
+      setTimeout(() => {
+        suppressValueSyncRef.current = false;
+      }, 0);
     },
     getText: () => {
       return viewRef.current ? viewRef.current.state.doc.toString() : '';

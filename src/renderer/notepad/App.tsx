@@ -41,6 +41,7 @@ export function App(): JSX.Element {
   const [contextAnchor, setContextAnchor] = useState<{ top: number; left: number } | null>(null);
   const [canPaste, setCanPaste] = useState<boolean>(false);
   const [contextSelection, setContextSelection] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
+  const [isContextPasting, setIsContextPasting] = useState<boolean>(false);
   // Clipboard helpers with Electron and Navigator fallbacks
   const readClipboardTextSafe = async (): Promise<string> => {
     try {
@@ -303,15 +304,23 @@ export function App(): JSX.Element {
       };
       const processed = applyRules(clip);
       const currentText = editorRef.current?.getText() ?? text;
-      const newText = currentText.slice(0, start) + processed + currentText.slice(end);
-      const newPos = start + processed.length;
+      
+      // Store the current state for undo
       setUndoStack(prev => [...prev, { text: currentText, selectionStart: start, selectionEnd: end }]);
       setRedoStack([]);
-      setText(newText);
+      
+      // Flag that we're doing a context paste to prevent duplicate undo entries
+      setIsContextPasting(true);
+      
+      // Insert the processed text directly into the editor at the selection
+      // This will trigger onChange which will update the React state automatically
+      editorRef.current?.insertText(processed, start, end);
+      editorRef.current?.focus();
+      
+      // Reset the flag after a short delay
       setTimeout(() => {
-        editorRef.current?.replaceAll(newText, { from: newPos, to: newPos });
-        editorRef.current?.focus();
-      }, 0);
+        setIsContextPasting(false);
+      }, 10);
     } catch {}
   };
 
@@ -336,12 +345,14 @@ export function App(): JSX.Element {
             themeMode={mode}
             pasteReplaceRules={pasteReplaceRules}
             onChange={(change) => {
-              setUndoStack(prev => {
-                const entry: HistoryEntry = { text: change.prevText, selectionStart: change.prevSelection.from, selectionEnd: change.prevSelection.to };
-                const next = [...prev, entry];
-                return next.length > 100 ? next.slice(1) : next;
-              });
-              setRedoStack([]);
+              if (!isContextPasting) {
+                setUndoStack(prev => {
+                  const entry: HistoryEntry = { text: change.prevText, selectionStart: change.prevSelection.from, selectionEnd: change.prevSelection.to };
+                  const next = [...prev, entry];
+                  return next.length > 100 ? next.slice(1) : next;
+                });
+                setRedoStack([]);
+              }
               setText(change.newText);
             }}
           />
