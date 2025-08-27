@@ -1,12 +1,17 @@
 import React from 'react';
-import { Box, Drawer, Divider, Typography, TextField as MUITextField, Button, IconButton, Checkbox, FormControlLabel } from '@mui/material';
-import { Add, Close } from '@mui/icons-material';
+import { Box, Drawer, Divider, Typography, IconButton, Checkbox, FormControlLabel } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { IoIosAdd } from "react-icons/io";
+import LinButton from './LinButton';
+import LinTextField from './LinTextField';
 
 export interface PasteReplaceRule {
   find: string;
   replace: string;
   isRegex?: boolean;
 }
+
+
 
 interface SettingsDrawerProps {
   open: boolean;
@@ -31,20 +36,17 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
           {(pasteReplaceRules ?? []).map((rule, idx) => (
             <Box key={idx} sx={{ display: 'flex', flexDirection: 'column', gap: 0, px: 1, paddingTop: 1, border: 1, borderColor: 'divider', borderRadius: 1,}}>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <MUITextField
-                  size="small"
-                  placeholder="Find (text or regex)"
+                <LinTextField
+                  placeholder="Find (text/regex)"
                   value={rule.find}
                   onChange={(e) => {
                     const next = [...(pasteReplaceRules ?? [])];
                     next[idx] = { ...next[idx], find: e.target.value };
                     onChangePasteReplaceRules?.(next);
                   }}
-                  sx={{ flex: 1, "& .MuiInputBase-input": { height: '0.7rem', fontSize: '0.7rem' }  }}
                 />
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>➜</Typography>
-                <MUITextField
-                  size="small"
+                <LinTextField
                   placeholder="Replace with"
                   value={rule.replace}
                   onChange={(e) => {
@@ -52,7 +54,6 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                     next[idx] = { ...next[idx], replace: e.target.value };
                     onChangePasteReplaceRules?.(next);
                   }}
-                  sx={{ flex: 1, "& .MuiInputBase-input": { height: '0.7rem', fontSize: '0.7rem' } }}
                 />
                 <IconButton size="small" onClick={() => {
                   const next = (pasteReplaceRules ?? []).filter((_, i) => i !== idx);
@@ -78,10 +79,14 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
               />
             </Box>
           ))}
-          <Button variant="outlined" size="small" startIcon={<Add />} onClick={() => {
-            const next = [ ...(pasteReplaceRules ?? []), { find: '', replace: '' } ];
-            onChangePasteReplaceRules?.(next);
-          }}>Add rule</Button>
+          <LinButton 
+            startIcon={<IoIosAdd />}
+            label="Add rule"
+            onClick={() => {
+              const next = [ ...(pasteReplaceRules ?? []), { find: '', replace: '' } ];
+              onChangePasteReplaceRules?.(next);
+            }}
+          />
         </Box>
       </Box>
     </Drawer>
