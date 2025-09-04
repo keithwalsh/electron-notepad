@@ -261,14 +261,34 @@ export function App(): JSX.Element {
   const doCopy = async () => {
     const { start, end } = contextSelection;
     if (start === end) return;
+    try {
+      const currentText = editorRef.current?.getText() ?? text;
+      const selected = currentText.slice(start, end);
+      await writeClipboardTextSafe(selected);
+      setCanPaste(Boolean(selected && selected.length > 0));
+    } catch {}
     editorRef.current?.setSelection(start, end);
     editorRef.current?.focus();
-    try { document.execCommand?.('copy'); } catch {}
   };
 
   const doCut = async () => {
     const { start, end } = contextSelection;
     if (start === end) return;
+    try {
+      const currentText = editorRef.current?.getText() ?? text;
+      const selected = currentText.slice(start, end);
+      await writeClipboardTextSafe(selected);
+      setCanPaste(Boolean(selected && selected.length > 0));
+      // Store state for undo and perform the cut directly in the editor
+      setUndoStack(prev => [...prev, { text: currentText, selectionStart: start, selectionEnd: end }]);
+      setRedoStack([]);
+      setIsContextPasting(true);
+      editorRef.current?.insertText('', start, end);
+      editorRef.current?.focus();
+      setTimeout(() => setIsContextPasting(false), 10);
+      return;
+    } catch {}
+    // Fallback to execCommand if direct handling fails
     editorRef.current?.setSelection(start, end);
     editorRef.current?.focus();
     try { document.execCommand?.('cut'); } catch {}

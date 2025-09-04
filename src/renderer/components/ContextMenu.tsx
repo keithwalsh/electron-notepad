@@ -109,7 +109,7 @@ const handleUndo = () => { onUndo(); onClose(); };
             Ctrl+C
         </Typography>
       </MenuItem>
-        <MenuItem sx={menuItemSx} onClick={handlePaste} disabled={!canPaste} dense>
+        <MenuItem sx={menuItemSx} onClick={handlePaste} dense>
         <ListItemIcon sx={iconContainerSx}>
           <ContentPaste fontSize="small" />
         </ListItemIcon>
