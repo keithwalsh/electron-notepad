@@ -111,7 +111,14 @@ ipcMain.handle('window:toggle-devtools', () => {
     if (mainWindow.webContents.isDevToolsOpened()) {
       mainWindow.webContents.closeDevTools();
     } else {
-      mainWindow.webContents.openDevTools({ mode: 'detach' });
+      /*
+       * Electron's openDevTools() supports these dock modes:
+       *   'right'   - Dock to the right (Chrome default)
+       *   'bottom'  - Dock to the bottom
+       *   'left'    - Dock to the left
+       *   'undocked' or 'detach' - Open in a separate window
+       */
+      mainWindow.webContents.openDevTools({ mode: 'right' });
     }
   }
 });

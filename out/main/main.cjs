@@ -88,7 +88,7 @@ electron.ipcMain.handle("window:toggle-devtools", () => {
     if (mainWindow.webContents.isDevToolsOpened()) {
       mainWindow.webContents.closeDevTools();
     } else {
-      mainWindow.webContents.openDevTools({ mode: "detach" });
+      mainWindow.webContents.openDevTools({ mode: "right" });
     }
   }
 });

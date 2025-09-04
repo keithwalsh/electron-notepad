@@ -1,6 +1,6 @@
 import type { MenuConfig } from '../../components/menubar';
 import { ClearAll, ExitToApp, FileOpen, NoteAdd, Redo, Save, SaveAs, Undo } from "@mui/icons-material";
-import { ContentCopy, ContentCut, ContentPasteGo, SelectAll, DeveloperBoard, Info, ZoomIn, ZoomOut, Refresh, Spellcheck, ViewHeadline } from "@mui/icons-material";
+import { ContentCopy, ContentCut, ContentPasteGo, SelectAll, DeveloperBoard, ZoomIn, ZoomOut, Refresh, Spellcheck, ViewHeadline } from "@mui/icons-material";
 
 
 interface CreateMenuConfigParams {
@@ -84,12 +84,6 @@ export function createMenuConfig({ text, filePath, devToolsOpen, spellCheckEnabl
         { kind: 'divider' },
         { kind: 'action', label: 'Status Bar', icon: <ViewHeadline />, action: () => setStatusBarVisible(!statusBarVisible), ...(statusBarVisible ? { selected: true } : {}) },
         { kind: 'action', label: 'Spellcheck', icon: <Spellcheck />, action: () => { const next = !spellCheckEnabled; setSpellCheckEnabled(next); if (!next) { window.electronAPI?.reload?.(); } }, ...(spellCheckEnabled ? { selected: true } : {}) },
-      ]
-    },
-    {
-      label: 'Help',
-      items: [
-        { kind: 'action', label: 'About', icon: <Info />, action: () => alert('Electron Notepad') }
       ]
     }
   ];
