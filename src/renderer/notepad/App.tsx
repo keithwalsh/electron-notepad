@@ -324,6 +324,10 @@ export function App(): JSX.Element {
     } catch {}
   };
 
+  const doSelectAll = () => {
+    editorRef.current?.selectAll();
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -363,9 +367,12 @@ export function App(): JSX.Element {
           canCopy={contextSelection.end > contextSelection.start}
           canCut={contextSelection.end > contextSelection.start}
           canPaste={canPaste}
+          canUndo={canUndo}
           onCopy={doCopy}
           onCut={doCut}
           onPaste={doPaste}
+          onSelectAll={doSelectAll}
+          onUndo={undo}
         />
         {statusBarVisible && <StatusBar filePath={filePath} charCount={charCount} lineCount={lineCount} text={text} zoomPercentage={zoomLevel} />}
       </Box>

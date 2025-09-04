@@ -29,6 +29,7 @@ export interface CodeEditorHandle {
   insertText: (text: string, from: number, to: number) => void;
   getText: () => string;
   focus: () => void;
+  selectAll: () => void;
 }
 
 export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEditor(
@@ -282,6 +283,16 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
     },
     focus: () => {
       viewRef.current?.focus();
+    },
+    selectAll: () => {
+      if (!viewRef.current) return;
+      const view = viewRef.current;
+      const docLength = view.state.doc.length;
+      view.dispatch({
+        selection: { anchor: 0, head: docLength },
+        effects: EditorView.scrollIntoView(0)
+      });
+      view.focus();
     }
   }));
 

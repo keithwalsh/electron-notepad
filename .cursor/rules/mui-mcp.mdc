@@ -1,0 +1,36 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## LLM policy for using MUI MCP (mui-mcp) during MUI-related code work
+
+- Ensure `mui-mcp` shows Connected in Cursor → Settings → MCP. If not, ask user to connect; do not proceed.
+- Before finalizing any answer that touches MUI APIs, props, theming, styling, or migrations, fetch the latest official docs to validate details.
+- Call tool: `mui-mcp.fetchDocs` with args `{ "urls": [ ... ] }` (absolute https URLs, max 3).
+- Prefer canonical URLs:
+    - Component: `https://mui.com/material-ui/react-<component>/`
+    - API: `https://mui.com/material-ui/api/<component>/`
+- Example: `{ "urls": ["https://mui.com/material-ui/react-text-field/", "https://mui.com/material-ui/api/text-field/"] }`
+- Version awareness:
+    - Detect installed MUI version from `package.json` (e.g.,`@mui/material`).
+    - If docs show features gated by version (e.g., “Starting from v6.4.0”), ensure suggestions match the project’s installed major/minor. Offer an alternative if there’s a mismatch.
+
+
+---
+
+## Project File Structure
+
+-   Files should consist of the following, **in order**:
+    1. JSDoc with @fileoverview
+    2. Imports, if present
+    3. The file’s implementation
+-   **Exactly one blank line** separates each section that is present.
+-   `@fileoverview` JSDoc should provide a description of the file's content, its uses, or information about its dependencies. **Don't** start with "This file contains" as its obvious its a file overview from the tag. Wrapped lines are not indented. **Don't** have a salesperson's tone, it's for developers not consumers.
+    Example:
+    ```
+    /**
+     * @fileoverview Description of file. Lorem ipsum dolor sit amet, consectetur
+     * adipiscing elit, sed do eiusmod tempor incididunt.
+     */
+    ```

@@ -32,7 +32,7 @@ async function createMainWindow() {
     mainWindow?.webContents.send("devtools-state-changed", false);
   });
   {
-    await mainWindow.loadURL("http://localhost:5174");
+    await mainWindow.loadURL("http://localhost:5173");
   }
 }
 electron.app.whenReady().then(async () => {

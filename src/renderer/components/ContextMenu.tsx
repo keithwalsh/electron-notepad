@@ -1,6 +1,6 @@
 import React from 'react';
-import { ContentCopy, ContentCut, ContentPaste } from '@mui/icons-material';
-import { ListItemIcon, ListItemText, Menu, MenuItem, MenuList, SxProps, Theme, Typography } from '@mui/material';
+import { ContentCopy, ContentCut, ContentPaste, SelectAll, Undo } from '@mui/icons-material';
+import { Divider, ListItemIcon, ListItemText, Menu, MenuItem, MenuList, SxProps, Theme, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
 export interface ContextMenuProps {
@@ -9,9 +9,12 @@ export interface ContextMenuProps {
   canCopy: boolean;
   canCut: boolean;
   canPaste: boolean;
+  canUndo: boolean;
   onCopy: () => void;
   onCut: () => void;
   onPaste: () => void;
+  onSelectAll: () => void;
+  onUndo: () => void;
 }
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -20,9 +23,12 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   canCopy,
   canCut,
   canPaste,
+  canUndo,
   onCopy,
   onCut,
   onPaste,
+  onSelectAll,
+  onUndo,
 }) => {
 
 const textSecondary90 = (theme: any) => alpha(theme.palette.text.secondary, 0.9);
@@ -61,6 +67,8 @@ const open = Boolean(anchorPosition);
 const handleCopy = () => { onCopy(); onClose(); };
 const handleCut = () => { onCut(); onClose(); };
 const handlePaste = () => { onPaste(); onClose(); };
+const handleSelectAll = () => { onSelectAll(); onClose(); };
+const handleUndo = () => { onUndo(); onClose(); };
 
   return (
     <Menu
@@ -73,15 +81,16 @@ const handlePaste = () => { onPaste(); onClose(); };
       sx={menuSx}
     >
       <MenuList dense sx={menuListSx}>
-      <MenuItem sx={menuItemSx} onClick={handleCopy} disabled={!canCopy} dense>
+      <MenuItem sx={menuItemSx} onClick={handleUndo} disabled={!canUndo} dense>
         <ListItemIcon sx={iconContainerSx}>
-          <ContentCopy fontSize="small" />
+          <Undo fontSize="small" />
         </ListItemIcon>
-        <ListItemText sx={menuItemLabelSx}>Copy</ListItemText>
+        <ListItemText sx={menuItemLabelSx}>Undo</ListItemText>
         <Typography variant="body2" sx={menuItemShortcutSx}>
-            Ctrl+C
+            Ctrl+Z
         </Typography>
       </MenuItem>
+      <Divider sx={{ my: '0 !important' }} />
       <MenuItem sx={menuItemSx} onClick={handleCut} disabled={!canCut} dense>
         <ListItemIcon sx={iconContainerSx}>
           <ContentCut fontSize="small" />
@@ -91,6 +100,15 @@ const handlePaste = () => { onPaste(); onClose(); };
             Ctrl+X
         </Typography>
       </MenuItem>
+      <MenuItem sx={menuItemSx} onClick={handleCopy} disabled={!canCopy} dense>
+        <ListItemIcon sx={iconContainerSx}>
+          <ContentCopy fontSize="small" />
+        </ListItemIcon>
+        <ListItemText sx={menuItemLabelSx}>Copy</ListItemText>
+        <Typography variant="body2" sx={menuItemShortcutSx}>
+            Ctrl+C
+        </Typography>
+      </MenuItem>
         <MenuItem sx={menuItemSx} onClick={handlePaste} disabled={!canPaste} dense>
         <ListItemIcon sx={iconContainerSx}>
           <ContentPaste fontSize="small" />
@@ -98,6 +116,16 @@ const handlePaste = () => { onPaste(); onClose(); };
         <ListItemText sx={menuItemLabelSx}>Paste</ListItemText>
         <Typography variant="body2" sx={menuItemShortcutSx}>
             Ctrl+V
+        </Typography>
+      </MenuItem>
+      <Divider sx={{ my: '0 !important' }} />
+      <MenuItem sx={menuItemSx} onClick={handleSelectAll} dense>
+        <ListItemIcon sx={iconContainerSx}>
+          <SelectAll fontSize="small" />
+        </ListItemIcon>
+        <ListItemText sx={menuItemLabelSx}>Select All</ListItemText>
+        <Typography variant="body2" sx={menuItemShortcutSx}>
+            Ctrl+A
         </Typography>
       </MenuItem>
       </MenuList>

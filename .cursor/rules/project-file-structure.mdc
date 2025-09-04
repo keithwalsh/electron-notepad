@@ -1,0 +1,46 @@
+---
+alwaysApply: true
+---
+## Project File Structure
+
+-   Files should consist of the following, **in order**:
+    1. JSDoc with @fileoverview
+    2. Imports, if present
+    3. The file’s implementation
+-   **Exactly one blank line** separates each section that is present.
+-   `@fileoverview` JSDoc should provide a description of the file's content, its uses, or information about its dependencies. **Don't** start with "This file contains" as its obvious its a file overview from the tag. Wrapped lines are not indented. **Don't** have a salesperson's tone, it's for developers not consumers.
+    Example:
+    ```
+    /**
+     * @fileoverview Description of file. Lorem ipsum dolor sit amet, consectetur
+     * adipiscing elit, sed do eiusmod tempor incididunt.
+     */
+    ```
+
+### Import Formatting Policy
+
+-   When importing multiple named exports from a module, place the opening brace `{` on the same line as `import` and the closing brace `}` on the same line as the last imported item.
+-   Keep all imports within the brace on a single line if they fit within the project’s preferred line length limit.
+-   Only wrap to a new line if the imports exceed that limit, but still keep opening and closing braces on the same line as code.
+
+Example:
+✅ Preferred
+```typescript
+import { Box, Card, CardActions, CardContent, CardHeader, Grid, IconButton, Stack, TextField, Typography, Button } from '@mui/material';
+```
+❌ Avoid
+```typescript
+import {
+  Box,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  Grid,
+  IconButton,
+  Stack,
+  TextField,
+  Typography,
+  Button,
+} from '@mui/material';
+```
