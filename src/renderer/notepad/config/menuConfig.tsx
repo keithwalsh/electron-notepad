@@ -17,9 +17,10 @@ interface CreateMenuConfigParams {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  focusEditor?: () => void;
 }
 
-export function createMenuConfig({ text, filePath, devToolsOpen, spellCheckEnabled, statusBarVisible, setText, setFilePath, setSpellCheckEnabled, setStatusBarVisible, undo, redo, canUndo, canRedo }: CreateMenuConfigParams): MenuConfig[] {
+export function createMenuConfig({ text, filePath, devToolsOpen, spellCheckEnabled, statusBarVisible, setText, setFilePath, setSpellCheckEnabled, setStatusBarVisible, undo, redo, canUndo, canRedo, focusEditor }: CreateMenuConfigParams): MenuConfig[] {
   return [
     {
       label: 'File',
@@ -54,14 +55,14 @@ export function createMenuConfig({ text, filePath, devToolsOpen, spellCheckEnabl
     {
       label: 'Edit',
       items: [
-        { kind: 'action', label: 'Undo', shortcut: 'Ctrl+Z', icon: <Undo />, action: undo, disabled: !canUndo },
-        { kind: 'action', label: 'Redo', shortcut: 'Ctrl+Y', icon: <Redo />, action: redo, disabled: !canRedo },
+        { kind: 'action', label: 'Undo', shortcut: 'Ctrl+Z', icon: <Undo />, action: () => { try { focusEditor?.(); } catch {} undo(); }, disabled: !canUndo },
+        { kind: 'action', label: 'Redo', shortcut: 'Ctrl+Y', icon: <Redo />, action: () => { try { focusEditor?.(); } catch {} redo(); }, disabled: !canRedo },
         { kind: 'divider' },
-        { kind: 'action', label: 'Cut', shortcut: 'Ctrl+X', icon: <ContentCut />, action: () => { try { document.execCommand?.('cut'); } catch {} } },
-        { kind: 'action', label: 'Copy', shortcut: 'Ctrl+C', icon: <ContentCopy />, action: () => { try { document.execCommand?.('copy'); } catch {} } },
-        { kind: 'action', label: 'Paste', shortcut: 'Ctrl+V', icon: <ContentPasteGo />, action: () => { try { document.execCommand?.('paste'); } catch {} } },
+        { kind: 'action', label: 'Cut', shortcut: 'Ctrl+X', icon: <ContentCut />, action: () => { try { focusEditor?.(); } catch {} try { document.execCommand?.('cut'); } catch {} } },
+        { kind: 'action', label: 'Copy', shortcut: 'Ctrl+C', icon: <ContentCopy />, action: () => { try { focusEditor?.(); } catch {} try { document.execCommand?.('copy'); } catch {} } },
+        { kind: 'action', label: 'Paste', shortcut: 'Ctrl+V', icon: <ContentPasteGo />, action: () => { try { focusEditor?.(); } catch {} try { document.execCommand?.('paste'); } catch {} } },
         { kind: 'divider' },
-        { kind: 'action', label: 'Select All', shortcut: 'Ctrl+A', icon: <SelectAll />, action: () => { try { document.execCommand?.('selectAll'); } catch {} } }
+        { kind: 'action', label: 'Select All', shortcut: 'Ctrl+A', icon: <SelectAll />, action: () => { try { focusEditor?.(); } catch {} try { document.execCommand?.('selectAll'); } catch {} } }
       ]
     },
     {

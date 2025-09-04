@@ -20,8 +20,9 @@ const KindActionItemComponent: React.FC<MenuItemAction> = ({ ...item }) => {
 
     const handleClick = React.useCallback(
         (event: React.MouseEvent<HTMLLIElement>) => {
-            rootPopupState?.close(event);
+            // Execute action first (matches ContextMenu ordering), then close menu
             item.action();
+            rootPopupState?.close(event);
         },
         [rootPopupState, item.action]
     );
@@ -50,7 +51,9 @@ const areEqualActionItem = (prev: MenuItemAction, next: MenuItemAction) => {
         prev.label === next.label &&
         prev.disabled === next.disabled &&
         prev.selected === next.selected &&
-        prev.shortcut === next.shortcut
+        prev.shortcut === next.shortcut &&
+        // Include action identity so we refresh when handlers change (e.g., Undo/Redo closures)
+        prev.action === next.action
     );
 };
 

@@ -47,6 +47,11 @@ export const useMenuHotkeys = (config: MenuConfig[]) => {
 
     // Register each shortcut with useHotkeys
     shortcutToAction.forEach((action, shortcut) => {
+        // Avoid registering global hotkeys for Undo/Redo since App also handles them.
+        const normalized = shortcut.toLowerCase();
+        if (normalized === 'ctrl+z' || normalized === 'cmd+z' || normalized === 'meta+z' || normalized === 'ctrl+y' || normalized === 'cmd+y' || normalized === 'meta+y' || normalized === 'ctrl+shift+z' || normalized === 'cmd+shift+z' || normalized === 'meta+shift+z') {
+            return;
+        }
         useHotkeys(shortcut, action, { preventDefault: true });
     });
 };

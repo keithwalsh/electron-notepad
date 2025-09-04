@@ -218,6 +218,7 @@ export function App(): JSX.Element {
         redo,
         canUndo,
         canRedo,
+        focusEditor: () => { try { editorRef.current?.focus(); } catch {} },
       }),
     [
       text,
